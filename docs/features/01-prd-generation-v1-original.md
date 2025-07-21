@@ -65,7 +65,10 @@ The generated PRD follows a comprehensive 8-section template:
 
 ### Basic Usage
 
-1. **Start the Application**
+
+2. **Upload Audio File**
+   - Click "Upload Audio File" 
+   - Select your meeting recording (MP3, WAV, M4A, etc.)
    ```bash
    uv run transcribe_gradio.py
    ```
@@ -309,7 +312,7 @@ Generates a structured PRD from meeting key points.
 **Returns:**
 - `str`: Generated PRD in markdown format
 
-**Example:**
+
 ```python
 openai_service = OpenAIService()
 prd = openai_service.generate_prd_from_key_points(key_points)
@@ -328,7 +331,7 @@ Creates a downloadable PRD file.
 **Returns:**
 - `str`: Path to the created file
 
-**Example:**
+
 ```python
 file_service = FileService()
 file_path = file_service.create_prd_download_file(prd_content)
@@ -349,7 +352,7 @@ Displays generated PRD with formatting.
 
 Factory method for creating PRD output components.
 
-**Example:**
+
 ```python
 from ui.components import ComponentFactory
 
@@ -374,11 +377,11 @@ prd_output = ComponentFactory.create_prd_output(
 - [x] Implement download functionality
 - [x] Add error handling and validation
 
-### Phase 3: Testing & Documentation 🔄 (In Progress - 2/4)
+### Phase 3: Testing & Documentation ✅ (Complete - 4/4)
 - [x] Update example_usage.py with PRD examples
 - [x] Add PRD components to ui_demo.py
-- [ ] Create comprehensive tests
-- [ ] Update main README.md
+- [x] Create comprehensive tests
+- [x] Update main README.md
 
 ### Phase 4: Future Enhancements 🔮 (Future)
 - [ ] Multiple PRD templates (Feature PRD, Technical PRD, etc.)

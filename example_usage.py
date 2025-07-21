@@ -8,6 +8,7 @@ without the Gradio interface.
 from services.whisper_service import WhisperService
 from services.openai_service import OpenAIService
 from services.file_service import FileService
+from config.settings import settings
 
 
 def main():
