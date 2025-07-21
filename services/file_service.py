@@ -184,6 +184,136 @@ class FileService:
         except Exception as e:
             print(f"Error saving transcription: {e}")
             return False
+    
+    def create_prd_download_file(self, prd_content, filename=None):
+        """
+        Create a downloadable PRD file in markdown format
+        
+        Args:
+            prd_content (str): The PRD content in markdown format
+            filename (str): Optional custom filename (auto-generated if not provided)
+            
+        Returns:
+            str: Path to the created PRD file, or None if failed
+        """
+        if not prd_content or prd_content.strip() == "":
+            print("Error: No PRD content provided")
+            return None
+        
+        try:
+            # Generate filename if not provided
+            if not filename:
+                from datetime import datetime
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+                prd_prefix = getattr(settings, 'prd_file_prefix', 'PRD_')
+                filename = f"{prd_prefix}{timestamp}.md"
+            
+            # Ensure filename has .md extension
+            if not filename.lower().endswith('.md'):
+                filename += '.md'
+            
+            # Create temporary file with PRD content
+            temp_file = tempfile.NamedTemporaryFile(
+                mode='w',
+                suffix='.md',
+                prefix=getattr(settings, 'prd_file_prefix', 'PRD_'),
+                delete=False,
+                encoding='utf-8'
+            )
+            
+            # Add metadata header if not already present
+            if not prd_content.strip().startswith('# Product Requirements Document'):
+                from datetime import datetime
+                current_date = datetime.now().strftime("%Y-%m-%d")
+                header = f"# Product Requirements Document\n*Generated from meeting analysis on {current_date}*\n\n"
+                prd_content = header + prd_content
+            
+            temp_file.write(prd_content)
+            temp_file.close()
+            
+            return temp_file.name
+            
+        except Exception as e:
+            print(f"Error creating PRD download file: {e}")
+            return None
+    
+    def get_prd_file_info(self, prd_file_path):
+        """
+        Get information about a PRD file
+        
+        Args:
+            prd_file_path (str): Path to the PRD file
+            
+        Returns:
+            dict: PRD file information or None if error
+        """
+        file_info = self.get_file_info(prd_file_path)
+        if not file_info:
+            return None
+        
+        try:
+            # Add PRD-specific information
+            file_info['type'] = 'PRD'
+            file_info['format'] = 'Markdown'
+            
+            # Try to extract title from content
+            if os.path.exists(prd_file_path):
+                with open(prd_file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    lines = content.split('\n')
+                    for line in lines:
+                        if line.strip().startswith('# '):
+                            file_info['title'] = line.strip()[2:]
+                            break
+                    else:
+                        file_info['title'] = 'Product Requirements Document'
+            
+            return file_info
+            
+        except Exception as e:
+            print(f"Error getting PRD file info: {e}")
+            return file_info  # Return basic file info if PRD-specific info fails
+    
+    def validate_prd_content(self, prd_content):
+        """
+        Validate PRD content structure
+        
+        Args:
+            prd_content (str): PRD content to validate
+            
+        Returns:
+            tuple: (is_valid, validation_message)
+        """
+        if not prd_content or prd_content.strip() == "":
+            return False, "PRD content is empty"
+        
+        # Check for required sections
+        required_sections = [
+            "Executive Summary",
+            "Problem Statement",
+            "Goals & Objectives",
+            "User Stories/Requirements",
+            "Success Metrics",
+            "Timeline/Milestones",
+            "Technical Requirements",
+            "Risk Assessment"
+        ]
+        
+        missing_sections = []
+        content_lower = prd_content.lower()
+        
+        for section in required_sections:
+            if section.lower() not in content_lower:
+                missing_sections.append(section)
+        
+        if missing_sections:
+            return False, f"Missing required sections: {', '.join(missing_sections)}"
+        
+        # Check minimum content length
+        if len(prd_content.strip()) < 500:
+            return False, "PRD content appears to be too short"
+        
+        return True, "PRD content is valid"
 
 
 # Global instance for easy access
@@ -202,3 +332,17 @@ def validate_audio_file(file_path):
     Validate if the file is a supported audio format
     """
     return _file_service.validate_audio_file(file_path)
+
+def create_prd_download_file(prd_content, filename=None):
+    """
+    Legacy function for backward compatibility
+    Create a downloadable PRD file in markdown format
+    """
+    return _file_service.create_prd_download_file(prd_content, filename)
+
+def validate_prd_content(prd_content):
+    """
+    Legacy function for backward compatibility
+    Validate PRD content structure
+    """
+    return _file_service.validate_prd_content(prd_content)
