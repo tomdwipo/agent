@@ -66,6 +66,34 @@ def main():
                 )
                 if key_points_file:
                     print(f"   Key points saved to: {key_points_file}")
+                
+                # Example 4.5: Generate PRD from key points (if PRD feature is enabled)
+                if settings.enable_prd_generation:
+                    print(f"\n4.5. PRD Generation:")
+                    print("   Generating PRD from key points...")
+                    
+                    prd_content = openai_service.generate_prd_from_key_points(key_points)
+                    
+                    if not prd_content.startswith("❌"):
+                        print("   ✅ PRD generated successfully!")
+                        print(f"   Preview: {prd_content[:200]}...")
+                        
+                        # Create downloadable PRD file
+                        prd_file = file_service.create_prd_download_file(prd_content)
+                        if prd_file:
+                            print(f"   PRD saved to: {prd_file}")
+                            
+                            # Validate PRD content
+                            is_valid_prd, validation_message = file_service.validate_prd_content(prd_content)
+                            print(f"   Validation: {validation_message}")
+                        else:
+                            print("   ❌ Failed to create PRD file")
+                    else:
+                        print(f"   ❌ PRD generation failed: {prd_content}")
+                else:
+                    print(f"\n4.5. PRD Generation:")
+                    print("   ❌ PRD generation feature is disabled")
+                    print("   To enable: set ENABLE_PRD_GENERATION=true in .env file")
             else:
                 print(f"\n4. Key Points Generation:")
                 print("   ❌ OpenAI service not available")
@@ -89,8 +117,9 @@ def main():
     print(f"\n🎉 Demo completed!")
     print("\nYou can now use these services in your own applications:")
     print("- WhisperService: For audio transcription")
-    print("- OpenAIService: For AI-powered analysis")
-    print("- FileService: For file operations")
+    print("- OpenAIService: For AI-powered analysis and PRD generation")
+    print("- FileService: For file operations and PRD file creation")
+    print("- UI Components: For building custom interfaces with PRD support")
 
 
 if __name__ == "__main__":

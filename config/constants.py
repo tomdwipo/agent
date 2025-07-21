@@ -130,6 +130,7 @@ UI_LABELS = {
 UI_PLACEHOLDERS = {
     "transcription": "Transcription will appear here...",
     "key_points": "Key meeting points will appear here after generating...",
+    "prd": "Generated PRD will appear here...",
     "upload_audio": "Click to upload an audio file"
 }
 
