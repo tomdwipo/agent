@@ -169,13 +169,14 @@ The system now supports comprehensive environment variable configuration:
 ### Optional Variables with Defaults:
 - **Whisper**: `WHISPER_MODEL` (default: "base"), `WHISPER_FP16` (default: false)
 - **OpenAI**: `OPENAI_MODEL` (default: "gpt-3.5-turbo"), `OPENAI_MAX_TOKENS` (default: 1000)
+- **🆕 PRD Generation**: `ENABLE_PRD_GENERATION` (default: true), `PRD_OPENAI_MODEL` (default: "gpt-4"), `PRD_MAX_TOKENS` (default: 2000), `PRD_TEMPERATURE` (default: 0.3), `PRD_FILE_PREFIX` (default: "PRD_")
 - **Files**: `MAX_FILE_SIZE_MB` (default: 500), `TEMP_FILE_PREFIX` (default: "transcription_")
 - **Gradio**: `GRADIO_SERVER_PORT` (default: 7860), `GRADIO_THEME` (default: "soft")
 - **App**: `APP_TITLE`, `ENABLE_KEY_POINTS` (default: true), `LOG_LEVEL` (default: "INFO")
 
 ## 📝 Usage Instructions
 
-### Running with Configuration
+
 ```bash
 # Run with default configuration
 uv run transcribe_gradio.py
@@ -239,10 +240,19 @@ class MyService:
 
 ### 📊 Metrics
 - **Configuration Centralization**: 100% - All settings in dedicated config layer
-- **Environment Variable Support**: 15+ configurable options
+- **Environment Variable Support**: 20+ configurable options (including PRD settings)
 - **Service Integration**: 100% - All services use configuration
+- **Feature Configuration**: 100% - PRD generation fully configurable
 - **Validation Coverage**: Comprehensive validation for all critical settings
 - **Developer Experience**: Configuration demo and summary display
+
+### 🎉 PRD Configuration Integration Success
+The centralized configuration system created in Phase 2 seamlessly accommodated PRD feature settings:
+- **PRD-Specific Settings**: Dedicated configuration category for PRD generation
+- **Feature Toggle**: `ENABLE_PRD_GENERATION` for easy feature control
+- **Model Configuration**: Separate OpenAI model configuration for PRD generation
+- **File Naming**: Configurable PRD file prefix and naming conventions
+- **No Architecture Changes**: PRD settings integrated without structural modifications
 
 ## 🔗 Related Documentation
 

@@ -95,7 +95,7 @@ PRD_FILE_PREFIX=PRD_                # Prefix for downloaded PRD files
 
 ## 💻 Usage Examples
 
-### Basic PRD Generation
+
 ```python
 from services.openai_service import OpenAIService
 from services.file_service import FileService
@@ -117,7 +117,7 @@ if openai_service.is_available():
     print(f"PRD validation: {message}")
 ```
 
-### UI Component Usage
+
 ```python
 from ui.components import ComponentFactory
 
@@ -138,7 +138,7 @@ prd_download = ComponentFactory.create_download_file(
 )
 ```
 
-### Configuration Usage
+
 ```python
 from config.settings import settings
 
