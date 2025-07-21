@@ -188,6 +188,95 @@ Focus on extracting concrete, actionable information. If certain sections don't 
             
         except Exception as e:
             return f"❌ Error generating custom analysis: {str(e)}\n\nPlease check your OpenAI API key and internet connection."
+    
+    def generate_prd_from_key_points(self, key_points_text, model=None):
+        """
+        Generate a Product Requirements Document from meeting key points
+        
+        Args:
+            key_points_text (str): The meeting key points text to analyze
+            model (str): OpenAI model to use (if None, uses configuration setting)
+            
+        Returns:
+            str: Generated PRD in markdown format or error message
+        """
+        if not key_points_text or key_points_text.strip() == "":
+            return ERROR_MESSAGES.get("no_key_points", "No key points provided for PRD generation.")
+        
+        # Check availability
+        if not self.is_available():
+            return self.get_availability_status()
+        
+        # Use configured model if not specified
+        model = model or settings.openai_model
+        
+        try:
+            # Create comprehensive PRD generation prompt
+            prompt = f"""
+Based on the following meeting key points, generate a comprehensive Product Requirements Document (PRD) in markdown format.
+
+MEETING KEY POINTS:
+{key_points_text}
+
+Please create a structured PRD with the following sections:
+
+# Product Requirements Document
+*Generated from meeting analysis on [current date]*
+
+## Executive Summary
+[Provide a high-level overview of the product/feature, key value propositions, and strategic alignment based on the meeting discussion]
+
+## Problem Statement
+[Define the problem being solved, current pain points, challenges, and market opportunity mentioned in the meeting]
+
+## Goals & Objectives
+[List primary and secondary objectives, success criteria, and business goals alignment from the discussion]
+
+## User Stories/Requirements
+[Extract and format functional requirements, user personas, use cases, and acceptance criteria mentioned]
+
+## Success Metrics
+[Identify Key Performance Indicators (KPIs), measurable outcomes, and success benchmarks discussed]
+
+## Timeline/Milestones
+[Outline development phases, key deliverables, and timeline estimates if mentioned in the meeting]
+
+## Technical Requirements
+[List system requirements, technical constraints, and integration needs discussed]
+
+## Risk Assessment
+[Identify potential risks, challenges, mitigation strategies, and contingency plans mentioned or implied]
+
+IMPORTANT GUIDELINES:
+- Base the PRD content strictly on information from the meeting key points
+- If specific information is not available in the key points, note "To be determined" or "Not specified in meeting"
+- Use professional product management language and formatting
+- Make reasonable inferences where appropriate but clearly distinguish between explicit and inferred information
+- Ensure each section is substantive and actionable
+- Use bullet points, numbered lists, and clear formatting for readability
+"""
+
+            # Call OpenAI API with PRD-specific settings
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system", 
+                        "content": "You are an expert product manager who creates comprehensive Product Requirements Documents. Generate well-structured, professional PRDs based on meeting discussions."
+                    },
+                    {
+                        "role": "user", 
+                        "content": prompt
+                    }
+                ],
+                max_tokens=getattr(settings, 'prd_max_tokens', 2000),
+                temperature=getattr(settings, 'prd_temperature', 0.3)
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            return ERROR_MESSAGES.get("openai_request_failed", "❌ Error generating PRD: {error}").format(error=str(e))
 
 
 # Global instance for backward compatibility
@@ -199,3 +288,10 @@ def generate_meeting_key_points(transcription_text):
     Generate key meeting points from transcription using OpenAI GPT
     """
     return _openai_service.generate_meeting_key_points(transcription_text)
+
+def generate_prd_from_key_points(key_points_text):
+    """
+    Legacy function for backward compatibility
+    Generate PRD from meeting key points using OpenAI GPT
+    """
+    return _openai_service.generate_prd_from_key_points(key_points_text)
