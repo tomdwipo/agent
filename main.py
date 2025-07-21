@@ -1,6 +1,13 @@
-def main():
-    print("Hello from agent!")
+# -*- coding: utf-8 -*-
+"""
+Main Audio Transcription Application
 
+This is the main entry point for the audio transcription application.
+Now uses the modular UI components for better maintainability.
+"""
+
+# Import UI interface
+from ui.gradio_interface import launch_interface
 
 if __name__ == "__main__":
-    main()
+    launch_interface()
