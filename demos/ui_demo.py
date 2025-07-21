@@ -4,6 +4,12 @@ UI Components Demo Script
 Demonstrates the new UI component system introduced in Phase 3.
 """
 
+import sys
+import os
+
+# Add the parent directory to the path so we can import our modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import gradio as gr
 from ui.components import ComponentFactory
 from ui.gradio_interface import create_gradio_interface, GradioInterface, SimpleGradioInterface

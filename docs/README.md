@@ -58,6 +58,14 @@ Complete API documentation for services and components
 - **Entry Point**: `transcribe_gradio.py` (Modular architecture)
 - **Package Manager**: `uv` with modern Python packaging
 - **Dependencies**: Managed via `pyproject.toml` and `uv.lock`
+- **Demo System**: Organized `demos/` directory with registry system
+
+### Demo Scripts Organization
+The project now includes a comprehensive demo system:
+- **Location**: `demos/` directory with organized structure
+- **Registry**: `python -m demos` command-line interface
+- **Scripts**: `config_demo.py`, `services_demo.py`, `ui_demo.py`, `test_runner.py`
+- **Documentation**: Complete demo documentation in `demos/README.md`
 
 **🚀 The Audio Transcription Tool is now a fully-featured, production-ready application with complete PRD generation capabilities!**
 
