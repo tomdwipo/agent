@@ -365,7 +365,7 @@ prd_output = ComponentFactory.create_prd_output(
 ### Phase 1: Core Implementation ✅ (Complete)
 - [x] Extend OpenAIService with PRD generation
 - [x] Add PRD file handling to FileService
-- [ ] Update configuration for PRD settings
+- [x] Update configuration for PRD settings
 - [ ] Create basic PRD UI components
 
 ### Phase 2: UI Integration ✅ (Planned)
