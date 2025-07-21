@@ -28,6 +28,9 @@ class GradioInterface:
         self.download_file = None
         self.key_points_btn = None
         self.key_points_output = None
+        self.prd_btn = None
+        self.prd_output = None
+        self.prd_download_file = None
     
     def create_interface(self) -> gr.Blocks:
         """Create and configure the complete Gradio interface"""
@@ -46,6 +49,10 @@ class GradioInterface:
             # Key points section (if enabled)
             if settings.enable_key_points:
                 self._create_key_points_section()
+            
+            # PRD section (if enabled)
+            if settings.enable_prd_generation:
+                self._create_prd_section()
             
             # Instructions section
             self._create_instructions_section()
@@ -100,6 +107,26 @@ class GradioInterface:
                 # Key points output
                 self.key_points_output = ComponentFactory.create_key_points_output()
     
+    def _create_prd_section(self):
+        """Create the PRD section"""
+        with gr.Row():
+            with gr.Column():
+                # PRD button
+                self.prd_btn = ComponentFactory.create_action_button(
+                    text=UI_LABELS["prd_button"],
+                    variant="secondary"
+                )
+        
+        with gr.Row():
+            with gr.Column():
+                # PRD output
+                self.prd_output = ComponentFactory.create_prd_output()
+                
+                # PRD download file
+                self.prd_download_file = ComponentFactory.create_download_file(
+                    label=UI_LABELS["download_prd_label"]
+                )
+    
     def _create_instructions_section(self):
         """Create the instructions section"""
         instructions_components = ComponentFactory.create_instructions()
@@ -127,6 +154,14 @@ class GradioInterface:
                 fn=self._process_key_points,
                 inputs=[self.transcription_output],
                 outputs=[self.key_points_output]
+            )
+        
+        # PRD event handler (if enabled)
+        if settings.enable_prd_generation and self.prd_btn:
+            self.prd_btn.click(
+                fn=self._process_prd_generation,
+                inputs=[self.key_points_output],
+                outputs=[self.prd_output, self.prd_download_file]
             )
     
     def _process_transcription(self, audio) -> Tuple[str, gr.File]:
@@ -163,6 +198,44 @@ class GradioInterface:
             return "Please transcribe audio first before generating key meeting points."
         
         return generate_meeting_key_points(transcription)
+    
+    def _process_prd_generation(self, key_points: str) -> Tuple[str, gr.File]:
+        """
+        Process PRD generation from key points
+        
+        Args:
+            key_points: Key points text
+            
+        Returns:
+            Tuple of (prd_content, download_file)
+        """
+        if not key_points or key_points.strip() == "":
+            return "Please generate key meeting points first before creating PRD.", gr.File(visible=False)
+        
+        # Import services here to avoid circular imports
+        from services.openai_service import OpenAIService
+        from services.file_service import FileService
+        
+        openai_service = OpenAIService()
+        file_service = FileService()
+        
+        if not openai_service.is_available():
+            return openai_service.get_availability_status(), gr.File(visible=False)
+        
+        # Generate PRD content
+        prd_content = openai_service.generate_prd_from_key_points(key_points)
+        
+        # Check if PRD generation was successful
+        if prd_content.startswith("❌"):
+            return prd_content, gr.File(visible=False)
+        
+        # Create downloadable PRD file
+        prd_file_path = file_service.create_prd_download_file(prd_content)
+        
+        if prd_file_path:
+            return prd_content, gr.File(value=prd_file_path, visible=True)
+        else:
+            return prd_content, gr.File(visible=False)
     
     def launch(self, **kwargs):
         """

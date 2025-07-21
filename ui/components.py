@@ -99,6 +99,39 @@ class KeyPointsOutputComponent:
         )
 
 
+class PRDOutputComponent:
+    """Reusable PRD output component"""
+    
+    def __init__(self, 
+                 label: Optional[str] = None, 
+                 placeholder: Optional[str] = None,
+                 lines: int = 20,
+                 max_lines: int = 50):
+        """
+        Initialize PRD output component
+        
+        Args:
+            label: Custom label for the output
+            placeholder: Custom placeholder text
+            lines: Number of visible lines
+            max_lines: Maximum number of lines
+        """
+        self.label = label or UI_LABELS["prd_label"]
+        self.placeholder = placeholder or UI_PLACEHOLDERS.get("prd", "Generated PRD will appear here...")
+        self.lines = lines
+        self.max_lines = max_lines
+    
+    def create(self) -> gr.Textbox:
+        """Create and return the PRD output component"""
+        return gr.Textbox(
+            label=self.label,
+            placeholder=self.placeholder,
+            lines=self.lines,
+            max_lines=self.max_lines,
+            show_copy_button=True
+        )
+
+
 class ActionButtonComponent:
     """Reusable action button component"""
     
@@ -203,7 +236,16 @@ class InstructionsComponent:
         
         if settings.enable_key_points:
             base_instructions += """
-5. Click 'Generate Key Meeting Points' to get AI-powered meeting summary
+5. Click 'Generate Key Meeting Points' to get AI-powered meeting summary"""
+            
+            if settings.enable_prd_generation:
+                base_instructions += """
+6. Click 'Generate PRD' to create a Product Requirements Document from the key points
+7. You can copy the content or download files (.txt for transcription, .md for PRD)
+
+**Note:** To use AI features, you need to add your OpenAI API key to the .env file."""
+            else:
+                base_instructions += """
 6. You can copy both the transcription and key points, or download the transcription as a .txt file
 
 **Note:** To use the key meeting points feature, you need to add your OpenAI API key to the .env file."""
@@ -278,7 +320,8 @@ class SettingsDisplayComponent:
             f"- Whisper Model: {settings.whisper_model}",
             f"- Max File Size: {settings.max_file_size_mb}MB",
             f"- OpenAI Configured: {'✅' if settings.is_openai_configured() else '❌'}",
-            f"- Key Points: {'Enabled' if settings.enable_key_points else 'Disabled'}"
+            f"- Key Points: {'Enabled' if settings.enable_key_points else 'Disabled'}",
+            f"- PRD Generation: {'Enabled' if settings.enable_prd_generation else 'Disabled'}"
         ]
         return "\n".join(info_lines)
 
@@ -317,6 +360,11 @@ class ComponentFactory:
     def create_key_points_output(**kwargs) -> gr.Textbox:
         """Create key points output component"""
         return KeyPointsOutputComponent(**kwargs).create()
+    
+    @staticmethod
+    def create_prd_output(**kwargs) -> gr.Textbox:
+        """Create PRD output component"""
+        return PRDOutputComponent(**kwargs).create()
     
     @staticmethod
     def create_action_button(text: str, **kwargs) -> gr.Button:
@@ -371,6 +419,10 @@ def create_transcription_output(**kwargs):
 def create_key_points_output(**kwargs):
     """Create key points output component"""
     return ComponentFactory.create_key_points_output(**kwargs)
+
+def create_prd_output(**kwargs):
+    """Create PRD output component"""
+    return ComponentFactory.create_prd_output(**kwargs)
 
 def create_action_button(text: str, **kwargs):
     """Create action button component"""
