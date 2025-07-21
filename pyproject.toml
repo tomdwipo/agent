@@ -1,6 +1,6 @@
 [project]
 name = "agent"
-version = "0.1.0"
+version = "1.0.0"
 description = "Production-ready audio transcription application with AI-powered meeting analysis and PRD generation using OpenAI Whisper and GPT"
 readme = "README.md"
 requires-python = ">=3.10"
