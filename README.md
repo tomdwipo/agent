@@ -579,7 +579,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 If you encounter any issues or have questions:
 
 1. Check the **[Documentation Center](docs/README.md)** for comprehensive guides
-2. Review **[Architecture Documentation](docs/architecture/current-architecture.md)** for technical details
+2. Review **[Architecture Documentation](docs/architecture/README.md)** for technical details
 3. See **[Features Status](docs/features/features-index.md)** for current development progress
 4. Run the demo scripts to understand the system
 5. Review the configuration options
