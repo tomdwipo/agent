@@ -26,7 +26,7 @@ The PRD (Product Requirements Document) Generation feature transforms meeting ke
 - ✅ **Event Handling**: Complete PRD generation workflow with error handling
 
 #### 🔄 Phase 3: Testing & Documentation (In Progress - 2/4 Complete)
-- ✅ Update example_usage.py with PRD examples
+- ✅ Update demos/services_demo.py with PRD examples
 - ✅ Enhanced documentation and API reference
 - [ ] Create comprehensive PRD tests
 - [ ] Performance optimization and validation

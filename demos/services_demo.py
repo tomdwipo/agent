@@ -5,6 +5,12 @@ This script demonstrates how to use the individual services independently
 without the Gradio interface.
 """
 
+import sys
+import os
+
+# Add the parent directory to the path so we can import our modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from services.whisper_service import WhisperService
 from services.openai_service import OpenAIService
 from services.file_service import FileService

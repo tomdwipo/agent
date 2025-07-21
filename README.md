@@ -157,9 +157,25 @@ audio-transcription-tool/
 │   ├── components.py            # Reusable UI components
 │   └── gradio_interface.py      # Interface implementations
 │
-├── example_usage.py             # Service usage examples
-├── config_demo.py               # Configuration demonstration
-└── ui_demo.py                   # UI components demonstration
+├── demos/                       # Demo scripts and examples
+│   ├── __init__.py             # Demo registry system
+│   ├── README.md               # Demo documentation
+│   ├── config_demo.py          # Configuration demonstration
+│   ├── services_demo.py        # Service usage examples
+│   ├── ui_demo.py              # UI components demonstration
+│   └── test_runner.py          # Test runner with PRD support
+│
+├── docs/                        # Comprehensive documentation
+│   ├── README.md               # Documentation hub
+│   ├── architecture/           # Technical architecture docs
+│   ├── features/               # Feature specifications
+│   ├── api/                    # API reference
+│   └── development/            # Development guides
+│
+└── tests/                       # Test suite
+    ├── __init__.py
+    ├── test_prd_services.py    # PRD service tests
+    └── test_prd_ui.py          # PRD UI tests
 ```
 
 ## 🎯 Usage Examples
@@ -291,13 +307,53 @@ custom_header = ComponentFactory.create_header(
 
 ```bash
 # Service usage examples
-uv run example_usage.py
+uv run demos/services_demo.py
 
 # Configuration demonstration
-uv run config_demo.py
+uv run demos/config_demo.py
 
 # UI components showcase
-uv run ui_demo.py
+uv run demos/ui_demo.py
+
+# Test runner with PRD support
+uv run demos/test_runner.py
+```
+
+### Demo Registry System
+
+The project includes a comprehensive demo registry for easy access:
+
+```bash
+# List all available demos
+python -m demos list
+
+# Run all demos sequentially
+python -m demos all
+
+# Run specific demos
+python -m demos config
+python -m demos services
+python -m demos ui
+python -m demos test
+```
+
+### Programmatic Demo Access
+
+```python
+# Import and run demos programmatically
+from demos import config_demo, services_demo, ui_demo, test_runner
+
+# Run individual demos
+config_demo()       # Configuration system demonstration
+services_demo()     # Service usage examples
+ui_demo()          # UI components showcase
+test_runner()      # Run comprehensive tests
+
+# Or use the registry system
+from demos import list_available_demos, run_all_demos
+
+list_available_demos()  # Show all available demos
+run_all_demos()         # Run all demos sequentially
 ```
 
 ### Adding New Services
@@ -530,13 +586,19 @@ The project includes comprehensive testing through demo scripts:
 
 ```bash
 # Test all services independently
-uv run example_usage.py
+uv run demos/services_demo.py
 
 # Test configuration system
-uv run config_demo.py
+uv run demos/config_demo.py
 
 # Test UI components
-uv run ui_demo.py
+uv run demos/ui_demo.py
+
+# Run comprehensive test suite
+uv run demos/test_runner.py
+
+# Or use the demo registry
+python -m demos all
 ```
 
 ## 🤝 Contributing

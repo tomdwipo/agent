@@ -13,6 +13,88 @@ from typing import Optional, Dict, Any
 load_dotenv()
 
 
+def _clean_env_value(value: str) -> str:
+    """
+    Clean environment variable value by removing comments and whitespace.
+    
+    Args:
+        value: Raw environment variable value
+        
+    Returns:
+        Cleaned value with comments and extra whitespace removed
+    """
+    if not value:
+        return value
+    
+    # Remove inline comments (anything after #)
+    if '#' in value:
+        value = value.split('#')[0]
+    
+    # Strip whitespace
+    return value.strip()
+
+
+def _get_env_int(key: str, default: str) -> int:
+    """
+    Safely get an integer environment variable.
+    
+    Args:
+        key: Environment variable key
+        default: Default value as string
+        
+    Returns:
+        Integer value
+        
+    Raises:
+        ValueError: If the value cannot be converted to int
+    """
+    raw_value = os.getenv(key, default)
+    clean_value = _clean_env_value(raw_value)
+    
+    try:
+        return int(clean_value)
+    except ValueError as e:
+        raise ValueError(f"Invalid integer value for {key}: '{raw_value}' (cleaned: '{clean_value}')") from e
+
+
+def _get_env_float(key: str, default: str) -> float:
+    """
+    Safely get a float environment variable.
+    
+    Args:
+        key: Environment variable key
+        default: Default value as string
+        
+    Returns:
+        Float value
+        
+    Raises:
+        ValueError: If the value cannot be converted to float
+    """
+    raw_value = os.getenv(key, default)
+    clean_value = _clean_env_value(raw_value)
+    
+    try:
+        return float(clean_value)
+    except ValueError as e:
+        raise ValueError(f"Invalid float value for {key}: '{raw_value}' (cleaned: '{clean_value}')") from e
+
+
+def _get_env_str(key: str, default: str) -> str:
+    """
+    Safely get a string environment variable.
+    
+    Args:
+        key: Environment variable key
+        default: Default value
+        
+    Returns:
+        Cleaned string value
+    """
+    raw_value = os.getenv(key, default)
+    return _clean_env_value(raw_value)
+
+
 class AppSettings:
     """Application settings and configuration management"""
     
@@ -23,42 +105,42 @@ class AppSettings:
     def _load_settings(self):
         """Load all settings from environment variables"""
         # OpenAI Configuration
-        self.openai_api_key = os.getenv("OPENAI_API_KEY", "")
-        self.openai_model = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
-        self.openai_max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1000"))
-        self.openai_temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))
+        self.openai_api_key = _get_env_str("OPENAI_API_KEY", "")
+        self.openai_model = _get_env_str("OPENAI_MODEL", "gpt-3.5-turbo")
+        self.openai_max_tokens = _get_env_int("OPENAI_MAX_TOKENS", "1000")
+        self.openai_temperature = _get_env_float("OPENAI_TEMPERATURE", "0.3")
         
         # Whisper Configuration
-        self.whisper_model = os.getenv("WHISPER_MODEL", "base")
-        self.whisper_fp16 = os.getenv("WHISPER_FP16", "false").lower() == "true"
+        self.whisper_model = _get_env_str("WHISPER_MODEL", "base")
+        self.whisper_fp16 = _get_env_str("WHISPER_FP16", "false").lower() == "true"
         
         # File Configuration
-        self.max_file_size_mb = int(os.getenv("MAX_FILE_SIZE_MB", "500"))
-        self.temp_file_prefix = os.getenv("TEMP_FILE_PREFIX", "transcription_")
-        self.download_file_suffix = os.getenv("DOWNLOAD_FILE_SUFFIX", ".txt")
+        self.max_file_size_mb = _get_env_int("MAX_FILE_SIZE_MB", "500")
+        self.temp_file_prefix = _get_env_str("TEMP_FILE_PREFIX", "transcription_")
+        self.download_file_suffix = _get_env_str("DOWNLOAD_FILE_SUFFIX", ".txt")
         
         # Gradio Configuration
-        self.gradio_server_name = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
-        self.gradio_server_port = int(os.getenv("GRADIO_SERVER_PORT", "7860"))
-        self.gradio_share = os.getenv("GRADIO_SHARE", "false").lower() == "true"
-        self.gradio_debug = os.getenv("GRADIO_DEBUG", "true").lower() == "true"
-        self.gradio_theme = os.getenv("GRADIO_THEME", "soft")
+        self.gradio_server_name = _get_env_str("GRADIO_SERVER_NAME", "0.0.0.0")
+        self.gradio_server_port = _get_env_int("GRADIO_SERVER_PORT", "7860")
+        self.gradio_share = _get_env_str("GRADIO_SHARE", "false").lower() == "true"
+        self.gradio_debug = _get_env_str("GRADIO_DEBUG", "true").lower() == "true"
+        self.gradio_theme = _get_env_str("GRADIO_THEME", "soft")
         
         # Application Configuration
-        self.app_title = os.getenv("APP_TITLE", "Audio Transcription with Whisper")
-        self.app_description = os.getenv("APP_DESCRIPTION", "Upload an audio file (MP3, WAV, etc.) and get the transcription using OpenAI's Whisper model.")
-        self.enable_key_points = os.getenv("ENABLE_KEY_POINTS", "true").lower() == "true"
+        self.app_title = _get_env_str("APP_TITLE", "Audio Transcription with Whisper")
+        self.app_description = _get_env_str("APP_DESCRIPTION", "Upload an audio file (MP3, WAV, etc.) and get the transcription using OpenAI's Whisper model.")
+        self.enable_key_points = _get_env_str("ENABLE_KEY_POINTS", "true").lower() == "true"
         
         # PRD Configuration
-        self.enable_prd_generation = os.getenv("ENABLE_PRD_GENERATION", "true").lower() == "true"
-        self.prd_openai_model = os.getenv("PRD_OPENAI_MODEL", self.openai_model)
-        self.prd_max_tokens = int(os.getenv("PRD_MAX_TOKENS", "2000"))
-        self.prd_temperature = float(os.getenv("PRD_TEMPERATURE", "0.3"))
-        self.prd_file_prefix = os.getenv("PRD_FILE_PREFIX", "PRD_")
+        self.enable_prd_generation = _get_env_str("ENABLE_PRD_GENERATION", "true").lower() == "true"
+        self.prd_openai_model = _get_env_str("PRD_OPENAI_MODEL", self.openai_model)
+        self.prd_max_tokens = _get_env_int("PRD_MAX_TOKENS", "2000")
+        self.prd_temperature = _get_env_float("PRD_TEMPERATURE", "0.3")
+        self.prd_file_prefix = _get_env_str("PRD_FILE_PREFIX", "PRD_")
         
         # Logging Configuration
-        self.log_level = os.getenv("LOG_LEVEL", "INFO")
-        self.enable_logging = os.getenv("ENABLE_LOGGING", "true").lower() == "true"
+        self.log_level = _get_env_str("LOG_LEVEL", "INFO")
+        self.enable_logging = _get_env_str("ENABLE_LOGGING", "true").lower() == "true"
     
     def is_openai_configured(self) -> bool:
         """Check if OpenAI is properly configured"""

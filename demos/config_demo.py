@@ -4,6 +4,12 @@ Configuration Demo Script
 Demonstrates the new configuration management system introduced in Phase 2.
 """
 
+import sys
+import os
+
+# Add the parent directory to the path so we can import our modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from config.settings import settings, env_config
 from config.constants import (
     APP_NAME, APP_VERSION, 
