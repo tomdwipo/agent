@@ -1,0 +1,201 @@
+"""
+Settings Configuration Module
+
+Centralizes environment variables, API configurations, and application settings.
+"""
+
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+from typing import Optional, Dict, Any
+
+# Load environment variables
+load_dotenv()
+
+
+class AppSettings:
+    """Application settings and configuration management"""
+    
+    def __init__(self):
+        """Initialize application settings"""
+        self._load_settings()
+    
+    def _load_settings(self):
+        """Load all settings from environment variables"""
+        # OpenAI Configuration
+        self.openai_api_key = os.getenv("OPENAI_API_KEY", "")
+        self.openai_model = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+        self.openai_max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "1000"))
+        self.openai_temperature = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))
+        
+        # Whisper Configuration
+        self.whisper_model = os.getenv("WHISPER_MODEL", "base")
+        self.whisper_fp16 = os.getenv("WHISPER_FP16", "false").lower() == "true"
+        
+        # File Configuration
+        self.max_file_size_mb = int(os.getenv("MAX_FILE_SIZE_MB", "500"))
+        self.temp_file_prefix = os.getenv("TEMP_FILE_PREFIX", "transcription_")
+        self.download_file_suffix = os.getenv("DOWNLOAD_FILE_SUFFIX", ".txt")
+        
+        # Gradio Configuration
+        self.gradio_server_name = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
+        self.gradio_server_port = int(os.getenv("GRADIO_SERVER_PORT", "7860"))
+        self.gradio_share = os.getenv("GRADIO_SHARE", "false").lower() == "true"
+        self.gradio_debug = os.getenv("GRADIO_DEBUG", "true").lower() == "true"
+        self.gradio_theme = os.getenv("GRADIO_THEME", "soft")
+        
+        # Application Configuration
+        self.app_title = os.getenv("APP_TITLE", "Audio Transcription with Whisper")
+        self.app_description = os.getenv("APP_DESCRIPTION", "Upload an audio file (MP3, WAV, etc.) and get the transcription using OpenAI's Whisper model.")
+        self.enable_key_points = os.getenv("ENABLE_KEY_POINTS", "true").lower() == "true"
+        
+        # Logging Configuration
+        self.log_level = os.getenv("LOG_LEVEL", "INFO")
+        self.enable_logging = os.getenv("ENABLE_LOGGING", "true").lower() == "true"
+    
+    def is_openai_configured(self) -> bool:
+        """Check if OpenAI is properly configured"""
+        return bool(self.openai_api_key and self.openai_api_key != "sk-your-openai-api-key-here")
+    
+    def get_openai_config(self) -> Dict[str, Any]:
+        """Get OpenAI configuration as dictionary"""
+        return {
+            "api_key": self.openai_api_key,
+            "model": self.openai_model,
+            "max_tokens": self.openai_max_tokens,
+            "temperature": self.openai_temperature
+        }
+    
+    def get_whisper_config(self) -> Dict[str, Any]:
+        """Get Whisper configuration as dictionary"""
+        return {
+            "model": self.whisper_model,
+            "fp16": self.whisper_fp16
+        }
+    
+    def get_file_config(self) -> Dict[str, Any]:
+        """Get file handling configuration as dictionary"""
+        return {
+            "max_size_mb": self.max_file_size_mb,
+            "max_size_bytes": self.max_file_size_mb * 1024 * 1024,
+            "temp_prefix": self.temp_file_prefix,
+            "download_suffix": self.download_file_suffix
+        }
+    
+    def get_gradio_config(self) -> Dict[str, Any]:
+        """Get Gradio configuration as dictionary"""
+        return {
+            "server_name": self.gradio_server_name,
+            "server_port": self.gradio_server_port,
+            "share": self.gradio_share,
+            "debug": self.gradio_debug,
+            "theme": self.gradio_theme,
+            "title": self.app_title,
+            "description": self.app_description
+        }
+    
+    def get_app_config(self) -> Dict[str, Any]:
+        """Get general application configuration as dictionary"""
+        return {
+            "title": self.app_title,
+            "description": self.app_description,
+            "enable_key_points": self.enable_key_points,
+            "log_level": self.log_level,
+            "enable_logging": self.enable_logging
+        }
+    
+    def validate_settings(self) -> Dict[str, str]:
+        """Validate all settings and return any issues"""
+        issues = {}
+        
+        # Validate OpenAI settings
+        if self.enable_key_points and not self.is_openai_configured():
+            issues["openai"] = "OpenAI API key not configured but key points feature is enabled"
+        
+        # Validate Whisper settings
+        valid_whisper_models = ["tiny", "base", "small", "medium", "large", "large-v2", "large-v3"]
+        if self.whisper_model not in valid_whisper_models:
+            issues["whisper_model"] = f"Invalid Whisper model: {self.whisper_model}. Valid options: {valid_whisper_models}"
+        
+        # Validate file settings
+        if self.max_file_size_mb <= 0:
+            issues["file_size"] = "Maximum file size must be greater than 0"
+        
+        # Validate Gradio settings
+        if not (1 <= self.gradio_server_port <= 65535):
+            issues["gradio_port"] = "Gradio server port must be between 1 and 65535"
+        
+        return issues
+    
+    def print_settings_summary(self):
+        """Print a summary of current settings"""
+        print("🔧 Application Settings Summary")
+        print("=" * 50)
+        print(f"App Title: {self.app_title}")
+        print(f"Whisper Model: {self.whisper_model}")
+        print(f"OpenAI Configured: {'✅' if self.is_openai_configured() else '❌'}")
+        print(f"Key Points Enabled: {'✅' if self.enable_key_points else '❌'}")
+        print(f"Max File Size: {self.max_file_size_mb}MB")
+        print(f"Gradio Port: {self.gradio_server_port}")
+        print(f"Debug Mode: {'✅' if self.gradio_debug else '❌'}")
+        
+        # Check for issues
+        issues = self.validate_settings()
+        if issues:
+            print("\n⚠️  Configuration Issues:")
+            for key, issue in issues.items():
+                print(f"  - {key}: {issue}")
+        else:
+            print("\n✅ All settings are valid")
+
+
+class EnvironmentConfig:
+    """Environment-specific configuration"""
+    
+    @staticmethod
+    def get_environment() -> str:
+        """Get current environment (development, production, testing)"""
+        return os.getenv("ENVIRONMENT", "development").lower()
+    
+    @staticmethod
+    def is_development() -> bool:
+        """Check if running in development environment"""
+        return EnvironmentConfig.get_environment() == "development"
+    
+    @staticmethod
+    def is_production() -> bool:
+        """Check if running in production environment"""
+        return EnvironmentConfig.get_environment() == "production"
+    
+    @staticmethod
+    def is_testing() -> bool:
+        """Check if running in testing environment"""
+        return EnvironmentConfig.get_environment() == "testing"
+    
+    @staticmethod
+    def get_project_root() -> Path:
+        """Get project root directory"""
+        return Path(__file__).parent.parent
+    
+    @staticmethod
+    def get_env_file_path() -> Path:
+        """Get .env file path"""
+        return EnvironmentConfig.get_project_root() / ".env"
+
+
+# Global settings instance
+settings = AppSettings()
+env_config = EnvironmentConfig()
+
+# Legacy functions for backward compatibility
+def get_openai_api_key() -> Optional[str]:
+    """Legacy function to get OpenAI API key"""
+    return settings.openai_api_key if settings.is_openai_configured() else None
+
+def get_whisper_model_name() -> str:
+    """Legacy function to get Whisper model name"""
+    return settings.whisper_model
+
+def is_openai_available() -> bool:
+    """Legacy function to check OpenAI availability"""
+    return settings.is_openai_configured()
