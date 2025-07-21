@@ -348,6 +348,76 @@ class TestPRDWorkflow(unittest.TestCase):
         self.assertGreater(len(PRD_UI_LABELS), 0)
 
 
+class TestPRDIntegrationScript(unittest.TestCase):
+    """Integration tests from the original test_prd script"""
+    
+    def test_prd_components_creation(self):
+        """Test PRD UI components creation (from original test_prd script)"""
+        try:
+            from ui.components import ComponentFactory
+            from config.settings import settings
+            
+            # Test PRD output component creation
+            prd_output = ComponentFactory.create_prd_output()
+            self.assertIsNotNone(prd_output)
+            
+            # Test PRD settings
+            self.assertIsNotNone(settings.enable_prd_generation)
+            self.assertIsNotNone(settings.prd_openai_model)
+            self.assertIsNotNone(settings.prd_max_tokens)
+            self.assertIsNotNone(settings.prd_temperature)
+            self.assertIsNotNone(settings.prd_file_prefix)
+            
+            # Test PRD config method
+            prd_config = settings.get_prd_config()
+            self.assertIsInstance(prd_config, dict)
+            
+        except Exception as e:
+            self.fail(f"PRD components creation failed: {e}")
+    
+    def test_prd_services_integration(self):
+        """Test PRD services integration (from original test_prd script)"""
+        try:
+            from services.openai_service import OpenAIService
+            from services.file_service import FileService
+            
+            # Test OpenAI service PRD method
+            openai_service = OpenAIService()
+            self.assertTrue(hasattr(openai_service, 'generate_prd_from_key_points'))
+            
+            # Test File service PRD methods
+            file_service = FileService()
+            self.assertTrue(hasattr(file_service, 'create_prd_download_file'))
+            self.assertTrue(hasattr(file_service, 'validate_prd_content'))
+            
+        except Exception as e:
+            self.fail(f"PRD services integration failed: {e}")
+    
+    def test_prd_interface_integration(self):
+        """Test PRD interface integration (from original test_prd script)"""
+        with patch('ui.gradio_interface.gr') as mock_gr:
+            mock_gr.Textbox = MagicMock()
+            mock_gr.Button = MagicMock()
+            mock_gr.File = MagicMock()
+            mock_gr.Column = MagicMock()
+            mock_gr.Row = MagicMock()
+            
+            try:
+                from ui.gradio_interface import GradioInterface
+                
+                # Test interface creation with PRD enabled
+                interface = GradioInterface()
+                
+                # Check if PRD components are initialized
+                self.assertTrue(hasattr(interface, 'prd_btn'))
+                self.assertTrue(hasattr(interface, 'prd_output'))
+                self.assertTrue(hasattr(interface, 'prd_download_file'))
+                self.assertTrue(hasattr(interface, '_process_prd_generation'))
+                
+            except Exception as e:
+                self.fail(f"PRD interface integration failed: {e}")
+
+
 def run_prd_ui_tests():
     """Run all PRD UI tests"""
     # Create test suite
@@ -358,6 +428,7 @@ def run_prd_ui_tests():
     suite.addTest(unittest.makeSuite(TestPRDInterfaceIntegration))
     suite.addTest(unittest.makeSuite(TestPRDSettings))
     suite.addTest(unittest.makeSuite(TestPRDWorkflow))
+    suite.addTest(unittest.makeSuite(TestPRDIntegrationScript))
     
     # Run tests
     runner = unittest.TextTestRunner(verbosity=2)
