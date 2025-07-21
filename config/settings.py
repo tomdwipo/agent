@@ -49,6 +49,13 @@ class AppSettings:
         self.app_description = os.getenv("APP_DESCRIPTION", "Upload an audio file (MP3, WAV, etc.) and get the transcription using OpenAI's Whisper model.")
         self.enable_key_points = os.getenv("ENABLE_KEY_POINTS", "true").lower() == "true"
         
+        # PRD Configuration
+        self.enable_prd_generation = os.getenv("ENABLE_PRD_GENERATION", "true").lower() == "true"
+        self.prd_openai_model = os.getenv("PRD_OPENAI_MODEL", self.openai_model)
+        self.prd_max_tokens = int(os.getenv("PRD_MAX_TOKENS", "2000"))
+        self.prd_temperature = float(os.getenv("PRD_TEMPERATURE", "0.3"))
+        self.prd_file_prefix = os.getenv("PRD_FILE_PREFIX", "PRD_")
+        
         # Logging Configuration
         self.log_level = os.getenv("LOG_LEVEL", "INFO")
         self.enable_logging = os.getenv("ENABLE_LOGGING", "true").lower() == "true"
@@ -94,12 +101,23 @@ class AppSettings:
             "description": self.app_description
         }
     
+    def get_prd_config(self) -> Dict[str, Any]:
+        """Get PRD configuration as dictionary"""
+        return {
+            "enabled": self.enable_prd_generation,
+            "model": self.prd_openai_model,
+            "max_tokens": self.prd_max_tokens,
+            "temperature": self.prd_temperature,
+            "file_prefix": self.prd_file_prefix
+        }
+    
     def get_app_config(self) -> Dict[str, Any]:
         """Get general application configuration as dictionary"""
         return {
             "title": self.app_title,
             "description": self.app_description,
             "enable_key_points": self.enable_key_points,
+            "enable_prd_generation": self.enable_prd_generation,
             "log_level": self.log_level,
             "enable_logging": self.enable_logging
         }
@@ -111,6 +129,16 @@ class AppSettings:
         # Validate OpenAI settings
         if self.enable_key_points and not self.is_openai_configured():
             issues["openai"] = "OpenAI API key not configured but key points feature is enabled"
+        
+        # Validate PRD settings
+        if self.enable_prd_generation and not self.is_openai_configured():
+            issues["prd_openai"] = "OpenAI API key not configured but PRD generation feature is enabled"
+        
+        if self.prd_max_tokens <= 0:
+            issues["prd_tokens"] = "PRD max tokens must be greater than 0"
+        
+        if not (0.0 <= self.prd_temperature <= 2.0):
+            issues["prd_temperature"] = "PRD temperature must be between 0.0 and 2.0"
         
         # Validate Whisper settings
         valid_whisper_models = ["tiny", "base", "small", "medium", "large", "large-v2", "large-v3"]
@@ -135,6 +163,7 @@ class AppSettings:
         print(f"Whisper Model: {self.whisper_model}")
         print(f"OpenAI Configured: {'✅' if self.is_openai_configured() else '❌'}")
         print(f"Key Points Enabled: {'✅' if self.enable_key_points else '❌'}")
+        print(f"PRD Generation Enabled: {'✅' if self.enable_prd_generation else '❌'}")
         print(f"Max File Size: {self.max_file_size_mb}MB")
         print(f"Gradio Port: {self.gradio_server_port}")
         print(f"Debug Mode: {'✅' if self.gradio_debug else '❌'}")

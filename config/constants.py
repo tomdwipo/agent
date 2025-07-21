@@ -113,13 +113,18 @@ UI_LABELS = {
     "upload_label": "Upload Audio File",
     "transcribe_button": "🎯 Transcribe Audio",
     "key_points_button": "🔑 Generate Key Meeting Points",
+    "prd_button": "📋 Generate PRD",
     "transcription_label": "Transcription Result",
     "key_points_label": "Key Meeting Points",
+    "prd_label": "Product Requirements Document",
     "download_label": "Download Transcription",
+    "download_prd_label": "Download PRD (.md)",
     "instructions_title": "📝 Instructions:",
     "status_processing": "Processing...",
     "status_complete": "✅ Complete",
-    "status_error": "❌ Error"
+    "status_error": "❌ Error",
+    "prd_generating": "Generating PRD...",
+    "prd_complete": "✅ PRD Generated"
 }
 
 UI_PLACEHOLDERS = {
@@ -139,6 +144,22 @@ UI_INSTRUCTIONS = """
 **Note:** To use the key meeting points feature, you need to add your OpenAI API key to the .env file.
 """
 
+# PRD Configuration
+PRD_TEMPLATE_SECTIONS = [
+    "Executive Summary",
+    "Problem Statement", 
+    "Goals & Objectives",
+    "User Stories/Requirements",
+    "Success Metrics",
+    "Timeline/Milestones",
+    "Technical Requirements",
+    "Risk Assessment"
+]
+
+DEFAULT_PRD_MAX_TOKENS = 2000
+DEFAULT_PRD_TEMPERATURE = 0.3
+DEFAULT_PRD_FILE_PREFIX = "PRD_"
+
 # Error Messages
 ERROR_MESSAGES = {
     "no_file": "Please upload an audio file.",
@@ -150,6 +171,9 @@ ERROR_MESSAGES = {
     "openai_not_available": "❌ OpenAI library not installed. Please install it with: pip install openai",
     "openai_request_failed": "❌ Error generating key meeting points: {error}",
     "no_transcription": "Please transcribe audio first before generating key meeting points.",
+    "no_key_points": "Please generate key meeting points first before creating PRD.",
+    "prd_generation_failed": "❌ Error generating PRD: {error}",
+    "prd_feature_disabled": "❌ PRD generation feature is disabled.",
     "model_load_failed": "Failed to load Whisper model: {error}",
     "file_creation_failed": "Failed to create temporary file: {error}"
 }
@@ -199,7 +223,7 @@ API_TIMEOUTS = {
 # Environment Variables
 ENV_VARS = {
     "required": [
-        "OPENAI_API_KEY"  # Only required if using key points feature
+        "OPENAI_API_KEY"  # Only required if using key points or PRD features
     ],
     "optional": [
         "WHISPER_MODEL",
@@ -208,13 +232,19 @@ ENV_VARS = {
         "GRADIO_SERVER_PORT",
         "GRADIO_SHARE",
         "GRADIO_DEBUG",
-        "LOG_LEVEL"
+        "LOG_LEVEL",
+        "ENABLE_PRD_GENERATION",
+        "PRD_OPENAI_MODEL",
+        "PRD_MAX_TOKENS",
+        "PRD_TEMPERATURE",
+        "PRD_FILE_PREFIX"
     ]
 }
 
 # Feature Flags
 FEATURES = {
     "key_points_generation": True,
+    "prd_generation": True,
     "custom_analysis": True,
     "file_validation": True,
     "model_caching": True,
