@@ -538,6 +538,31 @@ uv run ui_demo.py
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## 📚 Documentation
+
+### 📖 Complete Documentation Hub
+For comprehensive project documentation, visit our **[Documentation Center](docs/README.md)**
+
+### 🎯 Quick Links
+- **[Architecture Evolution](docs/architecture/)** - Technical architecture history and design decisions
+- **[Feature Documentation](docs/features/)** - Detailed feature specifications and status
+- **[API Reference](docs/api/)** - Complete API documentation for services and components
+- **[Development Guide](docs/development/)** - Setup, contribution guidelines, and testing
+
+### 📊 Current Project Status
+- **Architecture**: Phase 3 Complete (UI Components) ✅
+- **Features**: PRD Generation v1.0 - Phase 1 (3/4 complete) 🔄
+- **Next Milestone**: PRD UI Integration → Phase 2
+
+### 📋 Feature Status Overview
+| Feature | Version | Status | Completion | Next Milestone |
+|---------|---------|--------|------------|----------------|
+| Audio Transcription | v3.0 | ✅ Stable | 100% | Maintenance |
+| AI Meeting Analysis | v2.0 | ✅ Stable | 100% | Enhancements |
+| **PRD Generation** | **v1.0** | **🔄 Development** | **75%** | **UI Integration** |
+
+For detailed feature tracking and roadmap, see [Features Overview](docs/features/features-index.md)
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -553,10 +578,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) for detailed architecture documentation
-2. Run the demo scripts to understand the system
-3. Review the configuration options
-4. Open an issue on GitHub
+1. Check the **[Documentation Center](docs/README.md)** for comprehensive guides
+2. Review **[Architecture Documentation](docs/architecture/current-architecture.md)** for technical details
+3. See **[Features Status](docs/features/features-index.md)** for current development progress
+4. Run the demo scripts to understand the system
+5. Review the configuration options
+6. Open an issue on GitHub
 
 ## 📋 PRD Generation Features
 
