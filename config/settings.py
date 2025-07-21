@@ -106,7 +106,7 @@ class AppSettings:
         """Load all settings from environment variables"""
         # OpenAI Configuration
         self.openai_api_key = _get_env_str("OPENAI_API_KEY", "")
-        self.openai_model = _get_env_str("OPENAI_MODEL", "gpt-3.5-turbo")
+        self.openai_model = _get_env_str("OPENAI_MODEL", "gpt-4")
         self.openai_max_tokens = _get_env_int("OPENAI_MAX_TOKENS", "1000")
         self.openai_temperature = _get_env_float("OPENAI_TEMPERATURE", "0.3")
         
