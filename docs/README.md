@@ -6,10 +6,11 @@ Welcome to the comprehensive documentation for the Audio Transcription Tool. Thi
 
 ### 🏗️ [Architecture](architecture/)
 Technical architecture evolution and design decisions
+- [Architecture Overview](architecture/README.md) - Complete architecture documentation hub
 - [Phase 1: Service Layer Extraction](architecture/01-refactoring-phase1.md) ✅
 - [Phase 2: Configuration Management](architecture/02-refactoring-phase2.md) ✅  
 - [Phase 3: UI Component Extraction](architecture/03-refactoring-phase3.md) ✅
-- [Current Architecture Summary](architecture/current-architecture.md)
+- [Current Architecture Summary](architecture/current-architecture.md) - v3.0 System overview
 
 ### ⭐ [Features](features/)
 Detailed feature specifications and implementation status
