@@ -10,11 +10,12 @@ __author__ = "Audio Transcription Tool Team"
 
 # Test modules
 from .test_prd_services import TestPRDServices, TestPRDIntegration
-from .test_prd_ui import TestPRDUIComponents, TestPRDInterfaceIntegration
+from .test_prd_ui import TestPRDUIComponents, TestPRDInterfaceIntegration, TestPRDIntegrationScript
 
 __all__ = [
     'TestPRDServices',
     'TestPRDIntegration', 
     'TestPRDUIComponents',
-    'TestPRDInterfaceIntegration'
+    'TestPRDInterfaceIntegration',
+    'TestPRDIntegrationScript'
 ]
