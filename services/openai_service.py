@@ -12,7 +12,8 @@ from config.constants import (
     DEFAULT_OPENAI_MAX_TOKENS,
     DEFAULT_OPENAI_TEMPERATURE,
     ERROR_MESSAGES,
-    SUCCESS_MESSAGES
+    SUCCESS_MESSAGES,
+    TRD_SECTIONS
 )
 
 OPENAI_AVAILABLE = True
@@ -277,6 +278,80 @@ IMPORTANT GUIDELINES:
             
         except Exception as e:
             return ERROR_MESSAGES.get("openai_request_failed", "❌ Error generating PRD: {error}").format(error=str(e))
+
+    def generate_android_trd_from_prd(self, prd_content: str) -> str:
+        """
+        Generate Android TRD from PRD content using OpenAI GPT.
+        
+        Args:
+            prd_content (str): Complete PRD markdown content
+            
+        Returns:
+            str: Generated Android TRD in markdown format
+        """
+        if not prd_content or prd_content.strip() == "":
+            return ERROR_MESSAGES["no_prd_content"]
+
+        if not settings.enable_trd_generation:
+            return ERROR_MESSAGES["trd_feature_disabled"]
+
+        if not self.is_available():
+            return self.get_availability_status()
+
+        try:
+            TRD_SECTIONS_STR = "\n- ".join(TRD_SECTIONS)
+            prompt = f"""
+You are an expert technical writer specializing in Android development. Your task is to generate a comprehensive Technical Requirements Document (TRD) for an Android application based on the provided Product Requirements Document (PRD).
+
+The TRD must follow this exact 7-section structure:
+1.  **Architecture Overview**: High-level system architecture, core components, data flow, and libraries.
+2.  **UI/UX Specifications**: Screen hierarchy, UI components, user interactions, and design principles.
+3.  **API Requirements**: Backend integration, REST endpoints, data models, and error handling.
+4.  **Database Schema**: Local data storage, entities, DAOs, and caching strategies.
+5.  **Security Requirements**: Data encryption, authentication, and permission handling.
+6.  **Performance Requirements**: Response times, memory usage, and optimization strategies.
+7.  **Testing Strategy**: Unit, integration, UI, and performance testing approaches.
+
+Here are the required sections for the TRD:
+- {TRD_SECTIONS_STR}
+
+Based on the PRD below, generate a detailed, actionable TRD in markdown format.
+
+---
+**PRODUCT REQUIREMENTS DOCUMENT (PRD):**
+
+{prd_content}
+---
+
+**IMPORTANT GUIDELINES:**
+-   **Strict Adherence**: Generate content for all 7 sections listed above. Do not add, remove, or rename sections.
+-   **Technical Depth**: Provide moderate technical detail. Suggest specific patterns (MVVM, Clean Architecture), libraries (Retrofit, Room, Hilt), and implementation strategies.
+-   **Actionable Content**: The output should be a practical guide for the development team.
+-   **Infer and Specify**: Where the PRD is high-level, make reasonable technical inferences. For example, if the PRD mentions "user login," the TRD should specify OAuth 2.0, token storage, and session management.
+-   **Placeholder for Ambiguity**: If a requirement is too vague to detail, use placeholders like "[To be defined: specific algorithm]" or "[Requires clarification: ...]".
+-   **Formatting**: Use markdown for clear, structured formatting with headings, subheadings, bullet points, and code blocks.
+"""
+
+            response = self.client.chat.completions.create(
+                model=settings.trd_openai_model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an expert technical writer creating detailed Android Technical Requirements Documents (TRDs) from Product Requirements Documents (PRDs)."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                max_tokens=settings.trd_max_tokens,
+                temperature=settings.trd_temperature
+            )
+
+            return response.choices[0].message.content.strip()
+
+        except Exception as e:
+            return ERROR_MESSAGES["trd_generation_failed"].format(error=str(e))
 
 
 # Global instance for backward compatibility
