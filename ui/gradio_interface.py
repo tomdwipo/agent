@@ -31,6 +31,9 @@ class GradioInterface:
         self.prd_btn = None
         self.prd_output = None
         self.prd_download_file = None
+        self.trd_btn = None
+        self.trd_output = None
+        self.trd_download_file = None
     
     def create_interface(self) -> gr.Blocks:
         """Create and configure the complete Gradio interface"""
@@ -53,6 +56,10 @@ class GradioInterface:
             # PRD section (if enabled)
             if settings.enable_prd_generation:
                 self._create_prd_section()
+
+            # TRD section (if enabled)
+            if settings.enable_trd_generation:
+                self._create_trd_section()
             
             # Instructions section
             self._create_instructions_section()
@@ -126,6 +133,26 @@ class GradioInterface:
                 self.prd_download_file = ComponentFactory.create_download_file(
                     label=UI_LABELS["download_prd_label"]
                 )
+
+    def _create_trd_section(self):
+        """Create the TRD section"""
+        with gr.Row():
+            with gr.Column():
+                # TRD button
+                self.trd_btn = ComponentFactory.create_action_button(
+                    text="Generate TRD",
+                    variant="secondary"
+                )
+        
+        with gr.Row():
+            with gr.Column():
+                # TRD output
+                self.trd_output = ComponentFactory.create_trd_output()
+                
+                # TRD download file
+                self.trd_download_file = ComponentFactory.create_download_file(
+                    label="Download TRD (.md)"
+                )
     
     def _create_instructions_section(self):
         """Create the instructions section"""
@@ -162,6 +189,14 @@ class GradioInterface:
                 fn=self._process_prd_generation,
                 inputs=[self.key_points_output],
                 outputs=[self.prd_output, self.prd_download_file]
+            )
+
+        # TRD event handler (if enabled)
+        if settings.enable_trd_generation and self.trd_btn:
+            self.trd_btn.click(
+                fn=self._process_trd_generation,
+                inputs=[self.prd_output],
+                outputs=[self.trd_output, self.trd_download_file]
             )
     
     def _process_transcription(self, audio) -> Tuple[str, gr.File]:
@@ -236,6 +271,44 @@ class GradioInterface:
             return prd_content, gr.File(value=prd_file_path, visible=True)
         else:
             return prd_content, gr.File(visible=False)
+
+    def _process_trd_generation(self, prd_content: str) -> Tuple[str, gr.File]:
+        """
+        Process TRD generation from PRD content
+        
+        Args:
+            prd_content: PRD content text
+            
+        Returns:
+            Tuple of (trd_content, download_file)
+        """
+        if not prd_content or prd_content.strip() == "":
+            return "Please generate PRD first before creating TRD.", gr.File(visible=False)
+        
+        # Import services here to avoid circular imports
+        from services.openai_service import OpenAIService
+        from services.file_service import FileService
+        
+        openai_service = OpenAIService()
+        file_service = FileService()
+        
+        if not openai_service.is_available():
+            return openai_service.get_availability_status(), gr.File(visible=False)
+        
+        # Generate TRD content
+        trd_content = openai_service.generate_android_trd_from_prd(prd_content)
+        
+        # Check if TRD generation was successful
+        if trd_content.startswith("❌"):
+            return trd_content, gr.File(visible=False)
+        
+        # Create downloadable TRD file
+        trd_file_path = file_service.create_trd_download_file(trd_content)
+        
+        if trd_file_path:
+            return trd_content, gr.File(value=trd_file_path, visible=True)
+        else:
+            return trd_content, gr.File(visible=False)
     
     def launch(self, **kwargs):
         """
