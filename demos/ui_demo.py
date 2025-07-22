@@ -168,6 +168,11 @@ def create_demo_interface():
                         transcription_demo = ComponentFactory.create_transcription_output(
                             placeholder="Demo transcription output..."
                         )
+                        
+                        gr.Markdown("### TRD Output Component")
+                        trd_demo = ComponentFactory.create_trd_output(
+                            placeholder="Demo TRD output..."
+                        )
             
             # Custom Components Tab
             with gr.TabItem("Custom Components"):
