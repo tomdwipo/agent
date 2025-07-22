@@ -87,7 +87,8 @@ Users can now:
 - **Responsibility**: AI-powered analysis and content generation
 - **Features**: 
   - Meeting key points generation
-  - **PRD generation from key points** (NEW)
+  - **PRD generation from key points**
+  - **Android TRD generation from PRD** (NEW)
   - Custom analysis with user prompts
   - Service availability checking
 - **Integration**: Configuration-driven API settings and model selection
@@ -96,7 +97,8 @@ Users can now:
 - **Responsibility**: File operations, validation, and management
 - **Features**: 
   - Audio file validation (MP3, WAV, M4A, FLAC, AAC, OGG, WMA)
-  - **PRD file operations with automatic naming** (NEW)
+  - **PRD file operations with automatic naming**
+  - **TRD file operations with automatic naming** (NEW)
   - Temporary file management
   - Download file preparation
 - **Integration**: Configuration-driven size limits and validation rules
@@ -109,7 +111,8 @@ Users can now:
 - **Environment Variables**: Automatic .env file processing with defaults
 - **Validation**: Built-in settings validation with detailed error reporting
 - **Structured Access**: get_*_config() methods for organized access
-- **PRD Configuration**: Dedicated PRD generation settings (NEW)
+- **PRD Configuration**: Dedicated PRD generation settings
+- **TRD Configuration**: Dedicated TRD generation settings (NEW)
 
 #### Constants (`config/constants.py`)
 - **Application Information**: Name, version, description constants
@@ -170,6 +173,7 @@ Audio File → FileService (validation) → WhisperService (transcription)
 | Audio Transcription | WhisperService | AudioInput/TranscriptionOutput | ✅ Complete | ✅ Stable |
 | Meeting Analysis | OpenAIService | KeyPointsOutput | ✅ Complete | ✅ Stable |
 | **PRD Generation** | **OpenAIService + FileService** | **✅ Complete** | **✅ Complete** | **✅ READY** |
+| **TRD Generation** | **OpenAIService + FileService** | **✅ Complete** | **✅ Complete** | **✅ READY** |
 | File Management | FileService | DownloadFile | ✅ Complete | ✅ Stable |
 | Multi-Interface | - | All Components | ✅ Complete | ✅ Stable |
 
