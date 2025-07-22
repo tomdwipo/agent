@@ -87,7 +87,7 @@ The project now includes a comprehensive demo system:
 
 ### For Developers
 - [Architecture Overview](architecture/current-architecture.md) - Technical design
-- [API Reference](api/) - Complete API documentation
+- [API Reference](api/README.md) - Complete API documentation
 - [Contributing Guide](development/contributing.md) - Development workflow
 
 ### For Project Managers
