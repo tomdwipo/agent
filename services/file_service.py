@@ -315,6 +315,71 @@ class FileService:
         
         return True, "PRD content is valid"
 
+    def create_trd_download_file(self, trd_content: str, filename: str = None) -> str:
+        """
+        Create a downloadable TRD file in markdown format.
+
+        Args:
+            trd_content (str): The TRD content in markdown format.
+            filename (str, optional): Custom filename. Defaults to None.
+
+        Returns:
+            str: Path to the created TRD file, or None if failed.
+        """
+        if not trd_content or not trd_content.strip():
+            print("Error: No TRD content provided")
+            return None
+
+        try:
+            if not filename:
+                from datetime import datetime
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+                trd_prefix = getattr(settings, 'trd_file_prefix', 'TRD_')
+                filename = f"{trd_prefix}{timestamp}.md"
+
+            if not filename.lower().endswith('.md'):
+                filename += '.md'
+
+            # Use a temporary directory for the download file
+            temp_dir = tempfile.gettempdir()
+            file_path = os.path.join(temp_dir, filename)
+
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(trd_content)
+
+            return file_path
+
+        except Exception as e:
+            print(f"Error creating TRD download file: {e}")
+            return None
+
+    def validate_trd_content(self, trd_content: str) -> tuple[bool, str]:
+        """
+        Validate TRD content structure.
+
+        Args:
+            trd_content (str): TRD content to validate.
+
+        Returns:
+            tuple[bool, str]: (is_valid, validation_message)
+        """
+        if not trd_content or not trd_content.strip():
+            return False, "TRD content is empty"
+
+        from config.constants import TRD_SECTIONS
+        missing_sections = [
+            section for section in TRD_SECTIONS
+            if section.lower() not in trd_content.lower()
+        ]
+
+        if missing_sections:
+            return False, f"Missing required sections: {', '.join(missing_sections)}"
+
+        if len(trd_content.strip()) < 500:
+            return False, "TRD content appears to be too short"
+
+        return True, "TRD content is valid"
+
 
 # Global instance for easy access
 _file_service = FileService()
