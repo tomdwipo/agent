@@ -73,5 +73,28 @@ class TestTRDFileService(unittest.TestCase):
         self.assertFalse(is_valid)
         self.assertIn("Missing required sections", message)
 
+    def test_validate_trd_content_too_short(self):
+        """Test validating TRD content that is too short"""
+        short_content = """
+# Technical Requirements Document
+## Architecture Overview
+- MVVM
+## UI/UX Specifications
+- Main screen
+## API Requirements
+- None
+## Database Schema
+- Room
+## Security Requirements
+- None
+## Performance Requirements
+- Fast
+## Testing Strategy
+- Unit tests
+"""
+        is_valid, message = self.file_service.validate_trd_content(short_content)
+        self.assertFalse(is_valid)
+        self.assertEqual(message, "TRD content appears to be too short")
+
 if __name__ == '__main__':
     unittest.main()
