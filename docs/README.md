@@ -14,7 +14,8 @@ Technical architecture evolution and design decisions
 
 ### ⭐ [Features](features/)
 Detailed feature specifications and implementation status
-- [PRD Generation v1.0](features/01-prd-generation-v1.md) - Phase 1 (3/4 complete)
+- [PRD Generation v1.0](features/01-prd-generation-v1.md) - ✅ FULLY COMPLETE
+- [Android TRD Generation v1.0](features/02-trd-generation-android.md) - 📋 Planning Phase
 - [Features Overview](features/features-index.md)
 
 ### 🛠️ [Development](development/)
@@ -51,6 +52,14 @@ Complete API documentation for services and components
   - ✅ Complete UI integration and workflow
   - ✅ Comprehensive validation and error handling
   - ✅ Full testing and documentation
+
+### New Features in Development 🚀
+- 📋 **Android TRD Generation v1.0**: **PLANNING PHASE**
+  - 📋 7-section Android technical requirements template
+  - 📋 PRD → TRD conversion workflow integration
+  - 📋 High-level architecture with moderate technical detail
+  - 📋 Android-specific implementation specifications
+  - 📋 Comprehensive development plan (6-9 days estimated)
 
 ### Current Application Status
 - **Project Name**: Audio Transcription Tool
@@ -97,21 +106,23 @@ This documentation follows a structured versioning approach:
 
 ### Feature Versions
 - `01-prd-generation-v1.md` - PRD Generation feature v1.0
-- `02-feature-name-v1.md` - Next feature v1.0
+- `02-trd-generation-android.md` - Android TRD Generation feature v1.0
 - Version format: `vX.Y.Z` (Major.Minor.Patch)
 
 ## 🔄 Last Updated
-- **Date**: 2025-01-21
-- **Version**: Documentation v1.2
-- **Application Status**: v1.0.0 Production Ready
+- **Date**: 2025-01-22
+- **Version**: Documentation v1.3
+- **Application Status**: v1.0.0 Production Ready + v1.1 Planning
 - **Architecture**: Phase 3 Complete (All core features implemented)
-- **Major Milestone**: ✅ Complete audio transcription system with PRD generation!
+- **Major Milestone**: ✅ Complete audio transcription system with PRD generation + 📋 Android TRD planning!
 
 ## 📈 Current Metrics
 - **Features Implemented**: 3/3 core features complete (100%)
+- **Features in Planning**: 1/1 Android TRD Generation (Planning Phase)
 - **Architecture Phases**: 3/3 complete (Service Layer, Configuration, UI Components)  
 - **PRD Generation**: v1.0 fully complete and tested
-- **Production Readiness**: ✅ Ready for deployment
+- **Android TRD Generation**: v1.0 comprehensive planning complete
+- **Production Readiness**: ✅ Ready for deployment + 📋 Next feature planned
 
 ---
 
