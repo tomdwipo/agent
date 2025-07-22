@@ -36,6 +36,10 @@ tests/
 ├── __init__.py
 ├── test_prd_services.py         # PRD service tests
 ├── test_prd_ui.py              # PRD UI tests
+├── test_trd_services.py         # TRD service tests
+├── test_trd_ui.py              # TRD UI tests
+├── test_trd_file_service.py    # TRD file service tests
+├── test_trd_integration.py     # TRD integration tests
 ├── fixtures/                   # Test data and fixtures
 │   ├── sample_audio.wav        # Test audio files
 │   ├── sample_transcription.txt # Test transcriptions
