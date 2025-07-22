@@ -10,13 +10,24 @@ A powerful, production-ready audio transcription application built with OpenAI W
 - **🎯 Audio Transcription**: High-quality transcription using OpenAI Whisper models
 - **🔑 AI Meeting Analysis**: Generate key meeting points, action items, and summaries using OpenAI GPT
 - **📋 PRD Generation**: Transform meeting discussions into structured Product Requirements Documents
+- **🤖 Android TRD Generation**: Convert PRDs into comprehensive Android Technical Requirements Documents
 - **📁 Multi-Format Support**: MP3, WAV, M4A, FLAC, AAC, OGG, WMA, MP4, MOV, AVI
-- **💾 Download Options**: Export transcriptions as text files and PRDs as markdown files
+- **💾 Download Options**: Export transcriptions as text files, PRDs and TRDs as markdown files
 - **⚙️ Configurable Settings**: Extensive customization through environment variables
 
-### PRD Generation Workflow
+### Enhanced Workflow
+```
+Audio File → Transcription → Key Points → PRD Generation → Android TRD Generation → Download (.md)
+```
+
+**PRD Generation Workflow:**
 ```
 Audio File → Transcription → Key Points → PRD Generation → Download PRD (.md)
+```
+
+**NEW: Android TRD Generation Workflow:**
+```
+PRD Content → Android TRD Generation → Download TRD (.md)
 ```
 
 **Complete UI Integration:**
@@ -119,6 +130,13 @@ PRD_OPENAI_MODEL=gpt-4              # OpenAI model for PRD generation
 PRD_MAX_TOKENS=2000                 # Maximum tokens for PRD generation
 PRD_TEMPERATURE=0.3                 # Temperature for PRD generation (more structured)
 PRD_FILE_PREFIX=PRD_                # Prefix for downloaded PRD files
+
+# TRD Feature Configuration
+ENABLE_TRD_GENERATION=true           # Enable/disable TRD feature
+TRD_OPENAI_MODEL=gpt-4              # OpenAI model for TRD generation
+TRD_MAX_TOKENS=3000                 # Maximum tokens for TRD generation
+TRD_TEMPERATURE=0.2                 # Temperature for TRD generation (more structured)
+TRD_FILE_PREFIX=TRD_Android_        # Prefix for downloaded TRD files
 ```
 
 ### Whisper Models
@@ -224,6 +242,29 @@ if openai_service.is_available():
     # Validate PRD content
     is_valid, message = file_service.validate_prd_content(prd_content)
     print(f"PRD validation: {message}")
+```
+
+### Android TRD Generation
+
+```python
+# Generate Android TRD from PRD content
+from services.openai_service import OpenAIService
+from services.file_service import FileService
+
+openai_service = OpenAIService()
+file_service = FileService()
+
+# Generate TRD content from PRD
+if openai_service.is_available():
+    trd_content = openai_service.generate_android_trd_from_prd(prd_content)
+    
+    # Create downloadable TRD file
+    trd_file = file_service.create_trd_download_file(trd_content)
+    print(f"Android TRD saved to: {trd_file}")
+    
+    # Validate TRD content
+    is_valid, message = file_service.validate_trd_content(trd_content)
+    print(f"TRD validation: {message}")
 ```
 
 ### Custom Interface
@@ -631,6 +672,7 @@ For comprehensive project documentation, visit our **[Documentation Center](docs
 | Audio Transcription | v3.0 | ✅ Stable | 100% | Maintenance |
 | AI Meeting Analysis | v2.0 | ✅ Stable | 100% | Enhancements |
 | **PRD Generation** | **v1.0** | **✅ Complete** | **100%** | **Future Enhancements** |
+| **Android TRD Generation** | **v1.0** | **📋 Planning** | **0%** | **Implementation** |
 
 For detailed feature tracking and roadmap, see [Features Overview](docs/features/features-index.md)
 
