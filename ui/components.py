@@ -132,6 +132,39 @@ class PRDOutputComponent:
         )
 
 
+class TRDOutputComponent:
+    """Reusable TRD output component"""
+    
+    def __init__(self, 
+                 label: Optional[str] = None, 
+                 placeholder: Optional[str] = None,
+                 lines: int = 20,
+                 max_lines: int = 50):
+        """
+        Initialize TRD output component
+        
+        Args:
+            label: Custom label for the output
+            placeholder: Custom placeholder text
+            lines: Number of visible lines
+            max_lines: Maximum number of lines
+        """
+        self.label = label or "Technical Requirements Document"
+        self.placeholder = placeholder or "Generated TRD will appear here..."
+        self.lines = lines
+        self.max_lines = max_lines
+    
+    def create(self) -> gr.Textbox:
+        """Create and return the TRD output component"""
+        return gr.Textbox(
+            label=self.label,
+            placeholder=self.placeholder,
+            lines=self.lines,
+            max_lines=self.max_lines,
+            show_copy_button=True
+        )
+
+
 class ActionButtonComponent:
     """Reusable action button component"""
     
@@ -365,6 +398,11 @@ class ComponentFactory:
     def create_prd_output(**kwargs) -> gr.Textbox:
         """Create PRD output component"""
         return PRDOutputComponent(**kwargs).create()
+
+    @staticmethod
+    def create_trd_output(**kwargs) -> gr.Textbox:
+        """Create TRD output component"""
+        return TRDOutputComponent(**kwargs).create()
     
     @staticmethod
     def create_action_button(text: str, **kwargs) -> gr.Button:

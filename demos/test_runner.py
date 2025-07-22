@@ -50,7 +50,11 @@ def run_specific_test_modules():
     
     test_modules = [
         'tests.test_prd_services',
-        'tests.test_prd_ui'
+        'tests.test_prd_ui',
+        'tests.test_trd_services',
+        'tests.test_trd_ui',
+        'tests.test_trd_file_service',
+        'tests.test_trd_integration'
     ]
     
     suite = unittest.TestSuite()

@@ -128,6 +128,30 @@ def main():
     print("- FileService: For file operations and PRD file creation")
     print("- UI Components: For building custom interfaces with PRD support")
 
+    # Example 6: TRD Generation (if enabled and PRD content is available)
+    if 'prd_content' in locals() and settings.enable_trd_generation:
+        print(f"\n6. TRD Generation Example:")
+        print("   Generating TRD from PRD content...")
+        
+        trd_content = openai_service.generate_android_trd_from_prd(prd_content)
+        
+        if not trd_content.startswith("❌"):
+            print("   ✅ TRD generated successfully!")
+            print(f"   Preview: {trd_content[:200]}...")
+            
+            # Create downloadable TRD file
+            trd_file = file_service.create_trd_download_file(trd_content)
+            if trd_file:
+                print(f"   TRD saved to: {trd_file}")
+                
+                # Validate TRD content
+                is_valid_trd, validation_message = file_service.validate_trd_content(trd_content)
+                print(f"   Validation: {validation_message}")
+            else:
+                print("   ❌ Failed to create TRD file")
+        else:
+            print(f"   ❌ TRD generation failed: {trd_content}")
+
 
 if __name__ == "__main__":
     main()

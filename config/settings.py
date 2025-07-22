@@ -137,6 +137,13 @@ class AppSettings:
         self.prd_max_tokens = _get_env_int("PRD_MAX_TOKENS", "2000")
         self.prd_temperature = _get_env_float("PRD_TEMPERATURE", "0.3")
         self.prd_file_prefix = _get_env_str("PRD_FILE_PREFIX", "PRD_")
+
+        # TRD Configuration
+        self.enable_trd_generation = _get_env_str("ENABLE_TRD_GENERATION", "true").lower() == "true"
+        self.trd_openai_model = _get_env_str("TRD_OPENAI_MODEL", "gpt-4")
+        self.trd_max_tokens = _get_env_int("TRD_MAX_TOKENS", "3000")
+        self.trd_temperature = _get_env_float("TRD_TEMPERATURE", "0.2")
+        self.trd_file_prefix = _get_env_str("TRD_FILE_PREFIX", "TRD_Android_")
         
         # Logging Configuration
         self.log_level = _get_env_str("LOG_LEVEL", "INFO")
@@ -192,6 +199,16 @@ class AppSettings:
             "temperature": self.prd_temperature,
             "file_prefix": self.prd_file_prefix
         }
+
+    def get_trd_config(self) -> Dict[str, Any]:
+        """Get TRD configuration as dictionary"""
+        return {
+            "enabled": self.enable_trd_generation,
+            "model": self.trd_openai_model,
+            "max_tokens": self.trd_max_tokens,
+            "temperature": self.trd_temperature,
+            "file_prefix": self.trd_file_prefix
+        }
     
     def get_app_config(self) -> Dict[str, Any]:
         """Get general application configuration as dictionary"""
@@ -221,6 +238,16 @@ class AppSettings:
         
         if not (0.0 <= self.prd_temperature <= 2.0):
             issues["prd_temperature"] = "PRD temperature must be between 0.0 and 2.0"
+
+        # Validate TRD settings
+        if self.enable_trd_generation and not self.is_openai_configured():
+            issues["trd_openai"] = "OpenAI API key not configured but TRD generation feature is enabled"
+
+        if self.trd_max_tokens <= 0:
+            issues["trd_tokens"] = "TRD max tokens must be greater than 0"
+
+        if not (0.0 <= self.trd_temperature <= 2.0):
+            issues["trd_temperature"] = "TRD temperature must be between 0.0 and 2.0"
         
         # Validate Whisper settings
         valid_whisper_models = ["tiny", "base", "small", "medium", "large", "large-v2", "large-v3"]
@@ -246,6 +273,7 @@ class AppSettings:
         print(f"OpenAI Configured: {'✅' if self.is_openai_configured() else '❌'}")
         print(f"Key Points Enabled: {'✅' if self.enable_key_points else '❌'}")
         print(f"PRD Generation Enabled: {'✅' if self.enable_prd_generation else '❌'}")
+        print(f"TRD Generation Enabled: {'✅' if self.enable_trd_generation else '❌'}")
         print(f"Max File Size: {self.max_file_size_mb}MB")
         print(f"Gradio Port: {self.gradio_server_port}")
         print(f"Debug Mode: {'✅' if self.gradio_debug else '❌'}")

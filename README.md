@@ -9,7 +9,7 @@ A powerful, production-ready audio transcription application built with OpenAI W
 - **🎯 High-Quality Transcription**: Audio transcription using OpenAI Whisper models
 - **🔑 AI-Powered Analysis**: Generate meeting summaries, key points, and action items
 - **📋 PRD Generation**: Transform meeting discussions into structured Product Requirements Documents
-- **🤖 Android TRD Generation**: Convert PRDs into comprehensive Android Technical Requirements Documents
+- **🤖 Android TRD Generation**: Convert PRDs into comprehensive Android Technical Requirements Documents, complete with architecture, UI/UX, API, database, security, performance, and testing specifications.
 - **📁 Multi-Format Support**: MP3, WAV, M4A, FLAC, AAC, OGG, WMA, and more
 - **💾 Download Options**: Export transcriptions, PRDs, and TRDs as markdown files
 - **⚙️ Configurable Settings**: Extensive customization through environment variables

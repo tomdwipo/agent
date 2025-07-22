@@ -161,6 +161,20 @@ DEFAULT_PRD_MAX_TOKENS = 2000
 DEFAULT_PRD_TEMPERATURE = 0.3
 DEFAULT_PRD_FILE_PREFIX = "PRD_"
 
+# TRD Configuration
+TRD_SECTIONS = [
+    "Architecture Overview",
+    "UI/UX Specifications", 
+    "API Requirements",
+    "Database Schema",
+    "Security Requirements",
+    "Performance Requirements",
+    "Testing Strategy"
+]
+DEFAULT_TRD_MAX_TOKENS = 3000
+DEFAULT_TRD_TEMPERATURE = 0.2
+DEFAULT_TRD_FILE_PREFIX = "TRD_Android_"
+
 # Error Messages
 ERROR_MESSAGES = {
     "no_file": "Please upload an audio file.",
@@ -175,6 +189,9 @@ ERROR_MESSAGES = {
     "no_key_points": "Please generate key meeting points first before creating PRD.",
     "prd_generation_failed": "❌ Error generating PRD: {error}",
     "prd_feature_disabled": "❌ PRD generation feature is disabled.",
+    "no_prd_content": "Please provide PRD content before generating TRD.",
+    "trd_generation_failed": "❌ Error generating TRD: {error}",
+    "trd_feature_disabled": "❌ TRD generation feature is disabled.",
     "model_load_failed": "Failed to load Whisper model: {error}",
     "file_creation_failed": "Failed to create temporary file: {error}"
 }
@@ -238,7 +255,12 @@ ENV_VARS = {
         "PRD_OPENAI_MODEL",
         "PRD_MAX_TOKENS",
         "PRD_TEMPERATURE",
-        "PRD_FILE_PREFIX"
+        "PRD_FILE_PREFIX",
+        "ENABLE_TRD_GENERATION",
+        "TRD_OPENAI_MODEL",
+        "TRD_MAX_TOKENS",
+        "TRD_TEMPERATURE",
+        "TRD_FILE_PREFIX"
     ]
 }
 
@@ -246,6 +268,7 @@ ENV_VARS = {
 FEATURES = {
     "key_points_generation": True,
     "prd_generation": True,
+    "trd_generation": True,
     "custom_analysis": True,
     "file_validation": True,
     "model_caching": True,
