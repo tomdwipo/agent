@@ -281,13 +281,13 @@ IMPORTANT GUIDELINES:
 
     def generate_android_trd_from_prd(self, prd_content: str) -> str:
         """
-        Generate Android TRD from PRD content using OpenAI GPT.
+        Generate comprehensive Android TRD from PRD content using OpenAI GPT.
         
         Args:
             prd_content (str): Complete PRD markdown content
             
         Returns:
-            str: Generated Android TRD in markdown format
+            str: Generated comprehensive Android TRD in markdown format
         """
         if not prd_content or prd_content.strip() == "":
             return ERROR_MESSAGES["no_prd_content"]
@@ -299,37 +299,260 @@ IMPORTANT GUIDELINES:
             return self.get_availability_status()
 
         try:
-            TRD_SECTIONS_STR = "\n- ".join(TRD_SECTIONS)
             prompt = f"""
-You are an expert technical writer specializing in Android development. Your task is to generate a comprehensive Technical Requirements Document (TRD) for an Android application based on the provided Product Requirements Document (PRD).
+You are an expert technical writer and Android architect. Generate a comprehensive Technical Requirements Document (TRD) for an Android application based on the provided Product Requirements Document (PRD).
 
-The TRD must follow this exact 7-section structure:
-1.  **Architecture Overview**: High-level system architecture, core components, data flow, and libraries.
-2.  **UI/UX Specifications**: Screen hierarchy, UI components, user interactions, and design principles.
-3.  **API Requirements**: Backend integration, REST endpoints, data models, and error handling.
-4.  **Database Schema**: Local data storage, entities, DAOs, and caching strategies.
-5.  **Security Requirements**: Data encryption, authentication, and permission handling.
-6.  **Performance Requirements**: Response times, memory usage, and optimization strategies.
-7.  **Testing Strategy**: Unit, integration, UI, and performance testing approaches.
+The TRD must follow this EXACT comprehensive structure with ALL sections included:
 
-Here are the required sections for the TRD:
-- {TRD_SECTIONS_STR}
+# [App Name] - Technical Requirements Document
 
-Based on the PRD below, generate a detailed, actionable TRD in markdown format.
+**Feature Version**: v1.0 (Planned)  
+**Status**: 🔄 IN DEVELOPMENT  
+**Priority**: [High/Medium/Low based on PRD]  
+**Target Platform**: Android  
+
+## 📋 Feature Overview
+[2-3 paragraph overview of the application and its technical approach]
+
+### Development Workflow
+```
+PRD Analysis → Technical Design → **Android Implementation** → Testing → Deployment
+```
+
+## 🎯 Feature Requirements
+
+### Functional Requirements
+- **FR-1**: [Primary functional requirement]
+- **FR-2**: [Secondary functional requirement]
+- **FR-3**: [Additional requirements...]
+
+### Non-Functional Requirements
+- **NFR-1**: [Performance requirement]
+- **NFR-2**: [Scalability requirement]
+- **NFR-3**: [Reliability requirement]
+- **NFR-4**: [Security requirement]
+
+## 🏗️ Technical Architecture
+
+### System Architecture Overview
+[Describe the overall architecture approach]
+
+#### Core Architecture Components
+```kotlin
+// Example architecture structure
+class MainActivity : AppCompatActivity() {{
+    // Main entry point
+}}
+
+class [Feature]ViewModel : ViewModel() {{
+    // Business logic layer
+}}
+
+class [Feature]Repository {{
+    // Data access layer
+}}
+```
+
+## 📋 Android Technical Implementation
+
+### 1. Architecture Overview
+**Purpose**: Define the high-level system architecture and core components.
+
+**Implementation Details**:
+- **App Architecture Pattern**: [MVVM/MVP/Clean Architecture with specific rationale]
+- **Core Components**: [Detailed component breakdown]
+- **Data Flow**: [Complete user interaction flow]
+- **Third-party Libraries**: [Specific libraries with versions]
+- **Module Structure**: [Feature and shared modules]
+
+### 2. UI/UX Specifications
+**Purpose**: Define user interface components and user experience flows.
+
+**Implementation Details**:
+- **Screen Hierarchy**: [Navigation structure and flow]
+- **UI Components**: [Custom views and reusable components]
+- **User Interactions**: [Touch events and input handling]
+- **Responsive Design**: [Screen adaptation strategies]
+- **Material Design**: [Design system implementation]
+
+### 3. API Requirements
+**Purpose**: Specify backend integration and network communication.
+
+**Implementation Details**:
+- **REST Endpoints**: [Complete API specification]
+- **Data Models**: [Request/Response structures]
+- **Network Layer**: [HTTP client and error handling]
+- **Authentication**: [Token management and security]
+- **Error Handling**: [Network failure strategies]
+
+### 4. Database Schema
+**Purpose**: Define local data storage and management.
+
+**Implementation Details**:
+- **Local Database**: [Room entities and DAOs]
+- **Data Relationships**: [Entity relationships and indexing]
+- **Caching Strategy**: [Offline support and synchronization]
+- **Migration Strategy**: [Database versioning]
+- **Data Models**: [Entity definitions and converters]
+
+### 5. Security Requirements
+**Purpose**: Specify security measures and data protection.
+
+**Implementation Details**:
+- **Data Encryption**: [Local and network security]
+- **Authentication Flow**: [Login and session management]
+- **Permission Handling**: [Runtime permissions]
+- **Code Obfuscation**: [ProGuard/R8 configuration]
+- **API Security**: [Token validation and signing]
+
+### 6. Performance Requirements
+**Purpose**: Define performance targets and optimization strategies.
+
+**Implementation Details**:
+- **Response Times**: [Specific performance targets]
+- **Memory Management**: [Optimization strategies]
+- **Battery Optimization**: [Background task management]
+- **Network Efficiency**: [Caching and batching]
+- **UI Performance**: [60fps targets and animations]
+
+### 7. Testing Strategy
+**Purpose**: Define comprehensive testing approach.
+
+**Implementation Details**:
+- **Unit Testing**: [Business logic coverage]
+- **Integration Testing**: [API and database testing]
+- **UI Testing**: [Espresso test specifications]
+- **Performance Testing**: [Memory and ANR testing]
+- **Test Coverage**: [Coverage requirements and quality gates]
+
+## 🔧 Implementation Plan
+
+### Phase 1: Core Architecture Setup (Week 1-2)
+- [ ] Project structure and module setup
+- [ ] Core architecture implementation
+- [ ] Basic navigation framework
+- [ ] Development environment configuration
+
+### Phase 2: Feature Development (Week 3-6)
+- [ ] Core feature implementation
+- [ ] UI/UX development
+- [ ] API integration
+- [ ] Database implementation
+
+### Phase 3: Integration & Testing (Week 7-8)
+- [ ] Feature integration
+- [ ] Comprehensive testing
+- [ ] Performance optimization
+- [ ] Security implementation
+
+### Phase 4: Deployment & Launch (Week 9-10)
+- [ ] Production build configuration
+- [ ] App store preparation
+- [ ] Launch and monitoring setup
+- [ ] Post-launch support
+
+## 🎯 Success Criteria
+
+### Technical Success Criteria
+- [ ] **SC-1**: All core features implemented and functional
+- [ ] **SC-2**: Performance targets met (startup < 3s, smooth 60fps UI)
+- [ ] **SC-3**: Security requirements fully implemented
+- [ ] **SC-4**: Test coverage > 80% with all critical paths covered
+- [ ] **SC-5**: Production-ready build with proper obfuscation
+
+### User Experience Success Criteria
+- [ ] **SC-6**: Intuitive navigation and user flows
+- [ ] **SC-7**: Responsive design across all target devices
+- [ ] **SC-8**: Accessibility compliance (WCAG 2.1 AA)
+- [ ] **SC-9**: Offline functionality where applicable
+- [ ] **SC-10**: Fast and reliable performance
+
+## 🔍 Quality Assurance
+
+### Testing Strategy
+1. **Unit Testing**: JUnit and Mockito for business logic
+2. **Integration Testing**: Room database and API integration
+3. **UI Testing**: Espresso for user interface validation
+4. **Performance Testing**: Memory profiling and ANR detection
+5. **Security Testing**: Penetration testing and code analysis
+
+### Code Quality Standards
+- Kotlin coding standards and best practices
+- SOLID principles and clean architecture
+- Comprehensive documentation and comments
+- Code review process and quality gates
+- Automated testing and CI/CD integration
+
+## 📊 Metrics & Monitoring
+
+### Key Performance Indicators
+- **App Performance**: Startup time, memory usage, battery consumption
+- **User Engagement**: Session duration, feature adoption, retention rates
+- **Technical Metrics**: Crash rate, ANR rate, API response times
+- **Quality Metrics**: Test coverage, code quality scores, bug density
+
+### Monitoring Implementation
+- Firebase Analytics for user behavior tracking
+- Crashlytics for crash reporting and analysis
+- Performance monitoring for app vitals
+- Custom metrics for business-specific KPIs
+
+## 🚀 Future Enhancements (v2.0+)
+
+### Potential Extensions
+- **Advanced Features**: [Feature-specific enhancements]
+- **Platform Expansion**: Tablet optimization, Android TV support
+- **Integration Capabilities**: Third-party service integrations
+- **Performance Optimizations**: Advanced caching, background processing
+- **User Experience**: Personalization, advanced UI components
+
+### Scalability Considerations
+- Modular architecture for feature expansion
+- Microservices integration capabilities
+- Advanced caching and offline strategies
+- Multi-language and localization support
+
+## 📝 Notes & Considerations
+
+### Technical Considerations
+- **Android Version Support**: Minimum API level and target SDK
+- **Device Compatibility**: Screen sizes, hardware requirements
+- **Performance Constraints**: Memory limits, battery optimization
+- **Security Compliance**: Data protection regulations
+- **Maintenance Strategy**: Update cycles and backward compatibility
+
+### Business Considerations
+- **Development Timeline**: Resource allocation and milestone planning
+- **Cost Implications**: Development, testing, and maintenance costs
+- **Risk Assessment**: Technical risks and mitigation strategies
+- **Market Considerations**: Competition analysis and differentiation
 
 ---
-**PRODUCT REQUIREMENTS DOCUMENT (PRD):**
+
+**Document Version**: 1.0  
+**Last Updated**: [Current Date]  
+**Next Review**: After Phase 1 completion  
+**Owner**: Development Team
+
+---
+
+**PRODUCT REQUIREMENTS DOCUMENT (PRD) ANALYSIS:**
 
 {prd_content}
+
 ---
 
-**IMPORTANT GUIDELINES:**
--   **Strict Adherence**: Generate content for all 7 sections listed above. Do not add, remove, or rename sections.
--   **Technical Depth**: Provide moderate technical detail. Suggest specific patterns (MVVM, Clean Architecture), libraries (Retrofit, Room, Hilt), and implementation strategies.
--   **Actionable Content**: The output should be a practical guide for the development team.
--   **Infer and Specify**: Where the PRD is high-level, make reasonable technical inferences. For example, if the PRD mentions "user login," the TRD should specify OAuth 2.0, token storage, and session management.
--   **Placeholder for Ambiguity**: If a requirement is too vague to detail, use placeholders like "[To be defined: specific algorithm]" or "[Requires clarification: ...]".
--   **Formatting**: Use markdown for clear, structured formatting with headings, subheadings, bullet points, and code blocks.
+**GENERATION GUIDELINES:**
+1. **Comprehensive Structure**: Include ALL sections above - header, overview, requirements, architecture, implementation, plan, criteria, QA, metrics, future, and notes
+2. **Technical Depth**: Provide specific Android implementation details, library recommendations, and code examples where appropriate
+3. **Actionable Content**: Each section should provide concrete, implementable guidance for the development team
+4. **PRD Integration**: Base all technical decisions on the provided PRD content, making reasonable technical inferences
+5. **Professional Format**: Use consistent markdown formatting with emojis, checkboxes, and clear structure
+6. **Realistic Planning**: Provide achievable timelines and milestones based on typical Android development cycles
+7. **Quality Focus**: Emphasize testing, security, performance, and maintainability throughout
+8. **Future-Proof**: Consider scalability and extensibility in all technical recommendations
+
+Generate a complete, professional TRD that serves as a comprehensive technical specification for the Android development team.
 """
 
             response = self.client.chat.completions.create(
@@ -337,7 +560,7 @@ Based on the PRD below, generate a detailed, actionable TRD in markdown format.
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an expert technical writer creating detailed Android Technical Requirements Documents (TRDs) from Product Requirements Documents (PRDs)."
+                        "content": "You are an expert Android architect and technical writer creating comprehensive Technical Requirements Documents. Generate detailed, professional TRDs that serve as complete technical specifications for development teams."
                     },
                     {
                         "role": "user",
