@@ -1,6 +1,5 @@
 
 
-Here is a corrected and detailed, phase-by-phase breakdown of a modern product development lifecycle.
 
 ---
 
