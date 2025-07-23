@@ -1,7 +1,7 @@
 [project]
 name = "agent"
 version = "1.0.0"
-description = "Production-ready audio transcription application with AI-powered meeting analysis and PRD generation using OpenAI Whisper and GPT"
+description = "The SDLC Agent Workflow is a production-ready AI platform that automates key aspects of software development, starting with audio transcription and document generation, with a comprehensive roadmap to become a complete SDLC automation solution."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
