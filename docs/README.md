@@ -16,6 +16,7 @@ Technical architecture evolution and design decisions
 Detailed feature specifications and implementation status
 - [PRD Generation v1.0](features/01-prd-generation-v1.md) - ✅ FULLY COMPLETE
 - [Android TRD Generation v1.0](features/02-trd-generation-android.md) - ✅ FULLY COMPLETE
+- [Auto Record and Save v1.0](features/03-auto-recording-v1.md) - 📋 PLANNED
 - [Features Overview](features/features-index.md)
 - [TRD Template](features/trd-template.md)
 

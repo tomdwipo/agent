@@ -3,6 +3,8 @@
 This document provides an overview of all features in the Audio Transcription Tool, their current status, and development roadmap.
 
 ## 🚀 Current Features
+- [Auto Record and Save v1.0](03-auto-recording-v1.md) - 📋 Planned
+
 
 ### Core Features (Stable)
 - ✅ **Audio Transcription**: High-quality transcription using OpenAI Whisper models
