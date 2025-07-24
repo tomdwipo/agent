@@ -280,7 +280,7 @@ Figma File → MCP Extraction → Design Data → TRD Generation → Code Genera
 
 ## 🔗 Related Documentation
 
-- [Figma MCP Source Code](../../figma-mcp/)
+- [Figma MCP Source Code](../../mcp/figma/)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - [Figma REST API Documentation](https://www.figma.com/developers/api)
 - [Architecture Overview](../architecture/current-architecture.md)
