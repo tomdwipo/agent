@@ -291,5 +291,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Homepage:** [https://www.framelink.ai](https://www.framelink.ai)  
 **Repository:** [https://github.com/tomdwipo/agent](https://github.com/tomdwipo/agent)
