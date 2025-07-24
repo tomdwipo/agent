@@ -3,6 +3,8 @@
 This document provides an overview of all features in the Audio Transcription Tool, their current status, and development roadmap.
 
 ## 🚀 Current Features
+- [Auto Record and Save v1.0](03-auto-recording-v1.md) - 📋 Planned
+
 
 ### Core Features (Stable)
 - ✅ **Audio Transcription**: High-quality transcription using OpenAI Whisper models
@@ -40,6 +42,21 @@ Convert PRDs into comprehensive Android Technical Requirements Documents with 7-
 - ✅ Configuration Integration (Complete)
 - ✅ UI Integration (Complete)
 - ✅ Comprehensive Testing (Complete)
+
+**🎉 READY FOR PRODUCTION USE**
+
+#### 🎨 Figma MCP Integration v1.0
+**Status**: ✅ COMPLETE - [View Details](figma-mcp/)
+
+Model Context Protocol server enabling AI assistants to access and analyze Figma design files with comprehensive data extraction capabilities.
+
+**Progress**:
+- ✅ MCP Protocol Implementation (Complete)
+- ✅ Figma API Integration (Complete)
+- ✅ Design Data Extraction System (Complete)
+- ✅ Image Processing Pipeline (Complete)
+- ✅ Dual Operation Modes (Complete)
+- ✅ Documentation & Testing (Complete)
 
 **🎉 READY FOR PRODUCTION USE**
 
@@ -83,6 +100,7 @@ Convert PRDs into comprehensive Android Technical Requirements Documents with 7-
 | AI Meeting Analysis | v2.0 | ✅ Stable | Complete | 100% | Enhancements |
 | **PRD Generation** | **v1.0** | **✅ Complete** | **Complete** | **100%** | **Future Enhancements** |
 | **Android TRD Generation** | **v1.0** | **✅ Complete** | **Complete** | **100%** | **Future Enhancements** |
+| **Figma MCP Integration** | **v1.0** | **✅ Complete** | **Complete** | **100%** | **Future Enhancements** |
 | Advanced Analytics | v1.0 | 📋 Planned | Planning | 0% | Requirements |
 | Multi-Language | v1.0 | 📋 Planned | Planning | 0% | Research |
 | Integration Hub | v1.0 | 📋 Planned | Planning | 0% | Design |
