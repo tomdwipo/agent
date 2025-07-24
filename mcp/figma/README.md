@@ -30,7 +30,7 @@ npm install -g figma-mcp
 ```bash
 # Clone the repository
 git clone https://github.com/tomdwipo/agent.git
-cd agent/figma-mcp
+cd agent/mcp/figma
 
 # Install dependencies
 pnpm install
@@ -55,12 +55,6 @@ pnpm build
    # Required: Your Figma API access token
    FIGMA_API_KEY=your_figma_api_key_here
    
-   # Optional: Default file key for testing
-   FIGMA_FILE_KEY=your_figma_file_key_here
-   
-   # Optional: Default node ID for testing
-   FIGMA_NODE_ID=your_figma_node_id_here
-   
    # Optional: Server port (default: 3333)
    PORT=3333
    
@@ -81,7 +75,7 @@ Run the server in stdio mode for MCP client integration:
 
 ```bash
 # Using the global installation
-figma-developer-mcp --stdio
+figma-mcp --stdio
 
 # Or using pnpm (from source)
 pnpm start:cli
@@ -93,7 +87,7 @@ Run as a standalone HTTP server:
 
 ```bash
 # Using the global installation
-figma-developer-mcp
+figma-mcp
 
 # Or using pnpm (from source)
 pnpm start:http
@@ -270,7 +264,7 @@ pnpm inspect           # Run MCP inspector for debugging
 
 Enable detailed logging by setting the environment variable:
 ```bash
-NODE_ENV=development figma-developer-mcp
+NODE_ENV=development figma-mcp
 ```
 
 ### Getting Help

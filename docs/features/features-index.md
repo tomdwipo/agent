@@ -46,7 +46,7 @@ Convert PRDs into comprehensive Android Technical Requirements Documents with 7-
 **🎉 READY FOR PRODUCTION USE**
 
 #### 🎨 Figma MCP Integration v1.0
-**Status**: ✅ COMPLETE - [View Details](figma-mcp/)
+**Status**: ✅ COMPLETE - [View Details](mcp/figma/)
 
 Model Context Protocol server enabling AI assistants to access and analyze Figma design files with comprehensive data extraction capabilities.
 
