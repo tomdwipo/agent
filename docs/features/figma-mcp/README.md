@@ -87,10 +87,6 @@ The Figma MCP Integration feature provides a Model Context Protocol (MCP) server
 # Required: Figma API Configuration
 FIGMA_API_KEY=your_figma_api_key_here
 
-# Optional: Default file settings
-FIGMA_FILE_KEY=your_figma_file_key_here
-FIGMA_NODE_ID=your_figma_node_id_here
-
 # Optional: Server configuration
 PORT=3333
 OUTPUT_FORMAT=yaml                    # "yaml" or "json"
@@ -115,7 +111,7 @@ RETRY_DELAY=1000                     # Retry delay in milliseconds
 npm install -g figma-mcp
 
 # Run as MCP server
-figma-developer-mcp --stdio
+figma-mcp --stdio
 
 # Or from source
 pnpm start:cli
@@ -124,7 +120,7 @@ pnpm start:cli
 ### HTTP Server Mode
 ```bash
 # Run as HTTP server
-figma-developer-mcp
+figma-mcp
 
 # Server starts on http://localhost:3333
 curl -X POST http://localhost:3333/tools/get_figma_data \

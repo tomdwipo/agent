@@ -90,7 +90,7 @@ Complete SDLC automation platform covering:
 | **AI Meeting Analysis** | ✅ Complete | Key points extraction and meeting summaries | [API Docs](docs/api/services-api.md) |
 | **PRD Generation v1.0** | ✅ Complete | 8-section industry-standard Product Requirements Documents | [Feature Docs](docs/features/01-prd-generation-v1.md) |
 | **Android TRD Generation v1.0** | ✅ Complete | 7-section Android Technical Requirements Documents | [Feature Docs](docs/features/02-trd-generation-android.md) |
-| **Figma MCP Integration v1.0** | ✅ Complete | Model Context Protocol server for Figma design data extraction | [Feature Docs](docs/features/figma-mcp/) |
+| **Figma MCP Integration v1.0** | ✅ Complete | Model Context Protocol server for Figma design data extraction | [Feature Docs](docs/features/mcp/figma/) |
 
 ### 📋 Planned Features (2025-2026)
 
