@@ -21,6 +21,7 @@ The SDLC Agent Workflow is a production-ready AI platform that automates key asp
 - **🤖 AI Meeting Analysis**: Generate key meeting points and summaries with OpenAI GPT
 - **📋 PRD Generation**: Transform discussions into industry-standard Product Requirements Documents
 - **🔧 Android TRD Generation**: Convert PRDs into comprehensive Android Technical Requirements Documents
+- **🎨 Figma MCP Integration**: Model Context Protocol server for comprehensive Figma design data extraction
 - **📁 Multi-Format Support**: MP3, WAV, M4A, FLAC, AAC, OGG, WMA, MP4, MOV, AVI
 - **⚙️ Configurable Settings**: Extensive customization through environment variables
 
@@ -89,6 +90,7 @@ Complete SDLC automation platform covering:
 | **AI Meeting Analysis** | ✅ Complete | Key points extraction and meeting summaries | [API Docs](docs/api/services-api.md) |
 | **PRD Generation v1.0** | ✅ Complete | 8-section industry-standard Product Requirements Documents | [Feature Docs](docs/features/01-prd-generation-v1.md) |
 | **Android TRD Generation v1.0** | ✅ Complete | 7-section Android Technical Requirements Documents | [Feature Docs](docs/features/02-trd-generation-android.md) |
+| **Figma MCP Integration v1.0** | ✅ Complete | Model Context Protocol server for Figma design data extraction | [Feature Docs](docs/features/figma-mcp/) |
 
 ### 📋 Planned Features (2025-2026)
 
@@ -329,7 +331,7 @@ We welcome contributions! See our [Contributing Guide](docs/development/contribu
 ## 📊 Metrics & Performance
 
 ### Current Application Metrics
-- **Features Implemented**: 4/4 core features (100%)
+- **Features Implemented**: 5/5 core features (100%)
 - **Architecture Phases**: 3/3 complete (Service Layer, Configuration, UI Components)
 - **Test Coverage**: Comprehensive test suite
 - **Production Readiness**: ✅ Ready for deployment

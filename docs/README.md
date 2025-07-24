@@ -16,6 +16,7 @@ Technical architecture evolution and design decisions
 Detailed feature specifications and implementation status
 - [PRD Generation v1.0](features/01-prd-generation-v1.md) - ✅ FULLY COMPLETE
 - [Android TRD Generation v1.0](features/02-trd-generation-android.md) - ✅ FULLY COMPLETE
+- [Figma MCP Integration v1.0](features/figma-mcp/) - ✅ FULLY COMPLETE
 - [Auto Record and Save v1.0](features/03-auto-recording-v1.md) - 📋 PLANNED
 - [Features Overview](features/features-index.md)
 - [TRD Template](features/trd-template.md)
@@ -149,7 +150,7 @@ This documentation follows a structured versioning approach:
 ## 📈 Current Metrics
 
 ### Foundation Metrics (Complete)
-- **Core Features Implemented**: 4/4 (100%) - Transcription, PRD, TRD, Analysis
+- **Core Features Implemented**: 5/5 (100%) - Transcription, PRD, TRD, Analysis, Figma MCP
 - **Architecture Phases**: 3/3 complete (Service Layer, Configuration, UI Components)  
 - **Production Readiness**: ✅ Ready for deployment
 
