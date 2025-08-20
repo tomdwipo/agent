@@ -87,24 +87,27 @@ Add the following configuration to your MCP client settings (e.g., Claude Deskto
 
 ```json
 {
-  "android-mcp": {
-    "type": "stdio",
-    "command": "bash",
-    "args": [
-      "-c",
-      "cd /Users/tommy-amarbank/Documents/startup/agent/mcp/android && source .venv/bin/activate && uv run main.py --emulator"
-    ],
-    "alwaysAllow": [
-      "State-Tool",
-      "Click-Tool",
-      "Type-Tool"
-    ]
+  "mcpServers": {
+    "android-mcp": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-c",
+        "cd /path/to/agent/mcp/android && source .venv/bin/activate && uv run main.py --emulator"
+      ],
+      "alwaysAllow": [
+        "State-Tool",
+        "Click-Tool",
+        "Type-Tool",
+        "Swipe-Tool"
+      ]
+    }
   }
 }
 ```
 
 **Note**: Update the path in the configuration to match your actual project location.
-change /Users/tommy-amarbank/Documents/startup/agent/mcp/android to your actual path 
+
 
 ### Configuration Options
 
