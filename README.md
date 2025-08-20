@@ -22,6 +22,7 @@ The SDLC Agent Workflow is a production-ready AI platform that automates key asp
 - **📋 PRD Generation**: Transform discussions into industry-standard Product Requirements Documents
 - **🔧 Android TRD Generation**: Convert PRDs into comprehensive Android Technical Requirements Documents
 - **🎨 Figma MCP Integration**: Model Context Protocol server for comprehensive Figma design data extraction
+- **📱 Android MCP Integration**: AI-powered Android device automation with LLM integration for intelligent mobile testing and interaction
 - **📁 Multi-Format Support**: MP3, WAV, M4A, FLAC, AAC, OGG, WMA, MP4, MOV, AVI
 - **⚙️ Configurable Settings**: Extensive customization through environment variables
 
@@ -90,7 +91,8 @@ Complete SDLC automation platform covering:
 | **AI Meeting Analysis** | ✅ Complete | Key points extraction and meeting summaries | [API Docs](docs/api/services-api.md) |
 | **PRD Generation v1.0** | ✅ Complete | 8-section industry-standard Product Requirements Documents | [Feature Docs](docs/features/01-prd-generation-v1.md) |
 | **Android TRD Generation v1.0** | ✅ Complete | 7-section Android Technical Requirements Documents | [Feature Docs](docs/features/02-trd-generation-android.md) |
-| **Figma MCP Integration v1.0** | ✅ Complete | Model Context Protocol server for Figma design data extraction | [Feature Docs](docs/features/mcp/figma/) |
+| **Figma MCP Integration v1.0** | ✅ Complete | Model Context Protocol server for Figma design data extraction | [Feature Docs](docs/features/figma-mcp/) |
+| **Android MCP Integration v1.0** | ✅ Complete | AI-powered Android device automation with LLM integration for intelligent mobile testing | [Setup Guide](mcp/android/README.md) |
 
 ### 📋 Planned Features (2025-2026)
 
