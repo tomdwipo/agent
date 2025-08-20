@@ -104,6 +104,7 @@ Add the following configuration to your MCP client settings (e.g., Claude Deskto
 ```
 
 **Note**: Update the path in the configuration to match your actual project location.
+change /Users/tommy-amarbank/Documents/startup/agent/mcp/android to your actual path 
 
 ### Configuration Options
 
