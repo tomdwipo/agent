@@ -1,0 +1,32 @@
+[project]
+name = "gcp-mcp"
+version = "0.1.0"
+description = "Model Context Protocol Server for Google Cloud Platform Integration"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+urls = { Homepage = "https://github.com/tomdwipo/agent" }
+keywords = ["gcp", "google-cloud", "mcp", "cloud", "automation"]
+dependencies = [
+    "mcp>=1.9.3",
+    "google-cloud-compute>=1.15.0",
+    "google-cloud-storage>=2.10.0",
+    "google-cloud-iam>=2.12.0",
+    "google-cloud-resource-manager>=1.10.0",
+    "google-auth>=2.23.0",
+    "google-auth-oauthlib>=1.1.0",
+    "google-auth-httplib2>=0.2.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.5.0",
+    "rich>=13.7.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
