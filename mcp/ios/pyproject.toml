@@ -1,0 +1,28 @@
+[project]
+name = "ios-mcp"
+version = "0.1.0"
+description = "Lightweight MCP Server for iOS Operating System"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+urls = { Homepage = "https://github.com/tomdwipo/agent" }
+keywords = ["ios", "mcp", "mobile", "automation", "webdriveragent"]
+dependencies = [
+    "mcp>=1.9.3",
+    "facebook-wda>=1.4.6",
+    "tidevice>=0.11.0",
+    "pillow>=10.0.0",
+    "requests>=2.31.0",
+    "urllib3>=2.0.0",
+    "typing-extensions>=4.8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
