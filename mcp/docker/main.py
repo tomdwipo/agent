@@ -18,9 +18,8 @@ import mcp.types as types
 
 from src.docker.containers import ContainerTools
 from src.docker.images import ImageTools
-from src.docker.networks import NetworkTools
+from src.docker.networks import NetworkTools, VolumeTools
 from src.docker.compose import ComposeTools
-from src.docker.volumes import VolumeTools
 from src.config import Config
 
 

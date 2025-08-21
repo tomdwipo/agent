@@ -10,7 +10,6 @@ keywords = ["docker", "containers", "mcp", "devops", "automation"]
 dependencies = [
     "mcp>=1.9.3",
     "docker>=7.0.0",
-    "docker-compose>=1.29.0",
     "python-dotenv>=1.0.0",
     "pydantic>=2.5.0",
     "rich>=13.7.0",
