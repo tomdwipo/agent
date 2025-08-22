@@ -184,21 +184,8 @@ class ChromeBrowser:
 
     def _recover_browser(self) -> bool:
         """Attempt to recover from browser failure"""
-        try:
-            print("Attempting browser recovery...")
-            if hasattr(self, 'driver') and self.driver:
-                try:
-                    self.driver.quit()
-                except:
-                    pass
-            
-            # Reinitialize the browser
-            self._initialize_browser()
-            print("Browser recovery successful")
-            return True
-        except Exception as e:
-            print(f"Browser recovery failed: {e}")
-            return False
+        print("Browser recovery failed: Re-initialization is disabled.")
+        return False
 
     def get_driver(self):
         """Get the underlying WebDriver instance."""
@@ -220,13 +207,14 @@ class ChromeBrowser:
                 raise Exception("No valid browser window available")
                 
             page_tree = PageTree(self)
-            page_state = page_tree.get_state()
             
             if use_vision:
-                elements = page_state.interactive_elements
-                annotated_screenshot = page_tree.annotated_screenshot(elements=elements, scale=1.0)
-                screenshot = self.screenshot_in_bytes(annotated_screenshot)
+                # For vision mode, use lightweight state to avoid timeouts
+                page_state = page_tree.get_lightweight_state()
+                screenshot_pil = self.get_screenshot(scale=0.8)  # Reduce scale for faster processing
+                screenshot = self.screenshot_in_bytes(screenshot_pil)
             else:
+                page_state = page_tree.get_state()
                 screenshot = None
                 
             return ChromeState(page_state=page_state, screenshot=screenshot)
@@ -245,6 +233,15 @@ class ChromeBrowser:
             PIL Image object
         """
         try:
+            # Reduced wait time for better performance in vision mode
+            try:
+                WebDriverWait(self.driver, 3).until(
+                    lambda d: d.execute_script('return document.readyState') == 'complete'
+                )
+            except TimeoutException:
+                # Continue anyway if page isn't fully loaded
+                pass
+            
             # Take screenshot as PNG bytes
             screenshot_bytes = self.driver.get_screenshot_as_png()
             screenshot = Image.open(BytesIO(screenshot_bytes))
