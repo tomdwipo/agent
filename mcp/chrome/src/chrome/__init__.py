@@ -107,16 +107,99 @@ class ChromeBrowser:
             # Initialize undetected Chrome driver
             self.driver = uc.Chrome(options=options)
             
-            # Execute script to remove webdriver property
-            self.driver.execute_script(
-                "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-            )
-            
-            print(f"Chrome browser initialized successfully")
+            try:
+                # Check if we have a valid window before executing script
+                current_window = self.driver.current_window_handle
+                
+                # Execute script to remove webdriver property
+                self.driver.execute_script(
+                    "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+                )
+                
+                print(f"Chrome browser initialized successfully")
+                
+            except Exception as script_error:
+                print(f"Warning: Could not execute initialization script: {script_error}")
+                # Try to recover by ensuring we have a valid window
+                try:
+                    windows = self.driver.window_handles
+                    if not windows:
+                        # No windows available, create a new one
+                        self.driver.execute_script("window.open('about:blank', '_blank');")
+                        windows = self.driver.window_handles
+                    
+                    if windows:
+                        self.driver.switch_to.window(windows[0])
+                        # Try the initialization script again
+                        self.driver.execute_script(
+                            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+                        )
+                        print(f"Chrome browser recovered and initialized successfully")
+                    else:
+                        print("Warning: Browser initialized but no valid windows available")
+                        
+                except Exception as recovery_error:
+                    print(f"Warning: Browser initialized but recovery failed: {recovery_error}")
+                    # Browser is still usable, just without the webdriver property removal
             
         except Exception as e:
+            if hasattr(self, 'driver') and self.driver:
+                try:
+                    self.driver.quit()
+                except:
+                    pass
             raise ConnectionError(f"Failed to initialize Chrome browser: {e}")
     
+    def _ensure_valid_window(self):
+        """Ensure we have a valid browser window, create one if needed"""
+        try:
+            # Check if we have a valid window handle
+            current_window = self.driver.current_window_handle
+            # Try to interact with the window
+            self.driver.execute_script("return document.readyState;")
+            return True
+        except Exception as e:
+            print(f"Current window is invalid: {e}")
+            try:
+                # Check if there are other windows available
+                windows = self.driver.window_handles
+                if windows:
+                    # Switch to the first available window
+                    self.driver.switch_to.window(windows[0])
+                    print("Switched to available window")
+                    return True
+                else:
+                    # No windows available, open a new one
+                    self.driver.execute_script("window.open('about:blank', '_blank');")
+                    windows = self.driver.window_handles
+                    if windows:
+                        self.driver.switch_to.window(windows[-1])
+                        print("Created and switched to new window")
+                        return True
+            except Exception as recovery_error:
+                print(f"Failed to recover window: {recovery_error}")
+                # Last resort: try full browser recovery
+                return self._recover_browser()
+        return False
+
+    def _recover_browser(self) -> bool:
+        """Attempt to recover from browser failure"""
+        try:
+            print("Attempting browser recovery...")
+            if hasattr(self, 'driver') and self.driver:
+                try:
+                    self.driver.quit()
+                except:
+                    pass
+            
+            # Reinitialize the browser
+            self._initialize_browser()
+            print("Browser recovery successful")
+            return True
+        except Exception as e:
+            print(f"Browser recovery failed: {e}")
+            return False
+
     def get_driver(self):
         """Get the underlying WebDriver instance."""
         return self.driver
@@ -132,6 +215,10 @@ class ChromeBrowser:
             ChromeState object containing page state and optional screenshot
         """
         try:
+            # Ensure we have a valid window
+            if not self._ensure_valid_window():
+                raise Exception("No valid browser window available")
+                
             page_tree = PageTree(self)
             page_state = page_tree.get_state()
             
@@ -192,15 +279,31 @@ class ChromeBrowser:
     
     def navigate(self, url: str):
         """Navigate to a specific URL."""
-        if not url.startswith(('http://', 'https://')):
-            url = f'https://{url}'
-        self.driver.get(url)
+        try:
+            # Ensure we have a valid window before navigation
+            if not self._ensure_valid_window():
+                raise Exception("No valid browser window available")
+                
+            if not url.startswith(('http://', 'https://')):
+                url = f'https://{url}'
+            self.driver.get(url)
+        except Exception as e:
+            print(f"Failed to navigate to {url}: {e}")
+            raise
     
     def click(self, x: int, y: int):
         """Click on specific coordinates."""
-        ActionChains(self.driver).move_by_offset(x, y).click().perform()
-        # Reset mouse position
-        ActionChains(self.driver).move_by_offset(-x, -y).perform()
+        try:
+            # Ensure we have a valid window
+            if not self._ensure_valid_window():
+                raise Exception("No valid browser window available")
+                
+            ActionChains(self.driver).move_by_offset(x, y).click().perform()
+            # Reset mouse position
+            ActionChains(self.driver).move_by_offset(-x, -y).perform()
+        except Exception as e:
+            print(f"Failed to click at ({x}, {y}): {e}")
+            raise
     
     def click_element(self, selector: str, value: str, timeout: float = 10.0) -> str:
         """
@@ -215,6 +318,10 @@ class ChromeBrowser:
             Success message or error
         """
         try:
+            # Ensure we have a valid window
+            if not self._ensure_valid_window():
+                return "Error: No valid browser window available"
+                
             element = self._find_element(selector, value, timeout)
             if element:
                 # Scroll element into view
