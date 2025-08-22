@@ -148,6 +148,34 @@ class PageTree:
                 timestamp=time.time()
             )
     
+    def get_lightweight_state(self) -> PageState:
+        """Get lightweight page state optimized for vision mode."""
+        try:
+            driver = self.chrome_browser.get_driver()
+            
+            # Get page information
+            page_info = self.chrome_browser.get_page_info()
+            
+            # Get only essential interactive elements to avoid timeout
+            elements = self._parse_essential_elements()
+            interactive_elements = [elem for elem in elements if elem.interactive]
+            
+            return PageState(
+                elements=elements,
+                interactive_elements=interactive_elements,
+                page_info=page_info,
+                timestamp=time.time()
+            )
+            
+        except Exception as e:
+            # Fallback to minimal state
+            return PageState(
+                elements=[],
+                interactive_elements=[],
+                page_info={'title': 'Error', 'url': 'about:blank'},
+                timestamp=time.time()
+            )
+    
     def _parse_elements(self) -> List[WebElement]:
         """Parse web page elements."""
         elements = []
@@ -242,6 +270,96 @@ class PageTree:
             return True
         
         return False
+    
+    def _parse_essential_elements(self) -> List[WebElement]:
+        """Parse only essential interactive elements for faster processing."""
+        elements = []
+        driver = self.chrome_browser.get_driver()
+        
+        try:
+            # Focus on key interactive selectors to avoid timeout
+            essential_selectors = [
+                "//input[@type='text' or @type='search' or @type='email' or @type='password' or not(@type)]",
+                "//button",
+                "//a[@href]",
+                "//textarea",
+                "//select",
+                "//input[@type='submit' or @type='button']",
+                "//*[@role='button' or @role='link']"
+            ]
+            
+            element_id = 0
+            for selector in essential_selectors:
+                try:
+                    web_elements = driver.find_elements(By.XPATH, selector)
+                    
+                    for elem in web_elements:
+                        try:
+                            # Get element properties with timeout protection
+                            tag_name = elem.tag_name
+                            text = elem.text.strip()[:100]  # Limit text length
+                            
+                            # Get minimal attributes
+                            attributes = {}
+                            for attr in ['id', 'class', 'name', 'type', 'placeholder']:
+                                try:
+                                    value = elem.get_attribute(attr)
+                                    if value:
+                                        attributes[attr] = value[:50]  # Limit attribute length
+                                except:
+                                    continue
+                            
+                            # Get location and size with timeout protection
+                            try:
+                                location = elem.location
+                                size = elem.size
+                            except:
+                                location = {'x': 0, 'y': 0}
+                                size = {'width': 0, 'height': 0}
+                            
+                            # Quick visibility check
+                            try:
+                                visible = elem.is_displayed()
+                                enabled = elem.is_enabled()
+                            except:
+                                visible = False
+                                enabled = False
+                            
+                            # Skip if not visible or too small
+                            if not visible or size.get('width', 0) < 5 or size.get('height', 0) < 5:
+                                continue
+                            
+                            element = WebElement(
+                                id=attributes.get('id', f'element_{element_id}'),
+                                tag_name=tag_name,
+                                text=text,
+                                attributes=attributes,
+                                location=location,
+                                size=size,
+                                visible=visible,
+                                enabled=enabled,
+                                interactive=True  # All elements we're selecting are interactive
+                            )
+                            
+                            elements.append(element)
+                            element_id += 1
+                            
+                            # Limit total elements to prevent timeout
+                            if len(elements) >= 50:
+                                return elements
+                                
+                        except Exception:
+                            # Skip problematic elements
+                            continue
+                            
+                except Exception:
+                    # Skip problematic selectors
+                    continue
+            
+            return elements
+            
+        except Exception:
+            return []
     
     def annotated_screenshot(self, elements: List[WebElement], scale: float = 1.0) -> Image.Image:
         """Create annotated screenshot with element highlights."""
