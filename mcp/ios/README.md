@@ -2,6 +2,70 @@
 
 A Model Context Protocol (MCP) server for iOS device automation and testing. This server provides comprehensive iOS device control capabilities similar to the Android MCP server, enabling automated testing, app interaction, and device control through WebDriverAgent.
 
+## 🚀 Quick Start
+
+**New to iOS MCP? Start here for fastest setup:**
+
+### **Option A: iOS Simulator (Easiest)**
+
+```bash
+# 1. Navigate to iOS MCP directory
+cd mcp/ios
+
+# 2. Run setup verification (checks dependencies and provides guidance)
+./setup.sh
+
+# 3. For iOS Simulator (easiest option):
+# Install Appium in another terminal:
+npm install -g appium
+appium driver install xcuitest
+appium --port 4723
+
+# 4. Start iOS MCP server:
+uv run main.py --simulator --port 4723
+```
+
+### **Option B: Real iPhone via USB (More Powerful)**
+
+```bash
+# 1. Connect iPhone via USB and trust computer
+# 2. Enable Developer Mode (iOS 16+): Settings → Privacy & Security → Developer Mode → On
+
+# 3. Automated setup:
+cd mcp/ios
+./setup_real_iphone_auto.py
+
+# 4. Or manual setup:
+./setup_real_iphone.sh
+
+# 5. Start iOS MCP server:
+uv run main.py --usb
+```
+
+### **Option C: Real iPhone via WiFi (Most Convenient)**
+
+```bash
+# 1. First, set up WebDriverAgent via USB (one-time setup)
+cd mcp/ios
+cd WebDriverAgent
+xcodebuild test-without-building -project WebDriverAgent.xcodeproj \
+  -scheme WebDriverAgentRunner -destination 'id=YOUR_DEVICE_UDID' \
+  -allowProvisioningUpdates
+
+# 2. Find your iPhone's IP address:
+# Method A: iPhone Settings → Wi-Fi → (i) icon → Note IP Address
+# Method B: Automated discovery
+python3 find_iphone_ip.py
+
+# 3. Start iOS MCP server via WiFi:
+uv run main.py --device YOUR_IPHONE_IP:8100
+# Example: uv run main.py --device 192.168.1.2:8100
+```
+
+**That's it!** The server will guide you through any missing setup steps.
+
+---
+
 ## Features
 
 - 📱 **iOS Device Control** - Tap, swipe, type, and interact with iOS devices and simulators
@@ -12,6 +76,124 @@ A Model Context Protocol (MCP) server for iOS device automation and testing. Thi
 - 🎯 **Precise Element Targeting** - XPath, predicate, and accessibility-based element selection
 - 🔒 **Device Management** - Lock/unlock, volume control, orientation changes
 - ⚡ **Alert Handling** - Automatic handling of iOS alerts and dialogs
+
+## WiFi Connection Setup
+
+### Prerequisites for WiFi Connection
+- iPhone and Mac must be on the **same WiFi network**
+- WebDriverAgent must be **built and trusted** on the iPhone first
+- iPhone must have **Developer Mode enabled** (iOS 16+)
+
+### Step-by-Step WiFi Setup
+
+#### 1. Initial USB Setup (Required Once)
+```bash
+# Connect iPhone via USB first
+cd mcp/ios
+
+# Check if iPhone is detected
+uv run tidevice list
+# Should show: 00008101-000429600AD8001E ... Tommy iPhone ... usb
+
+# Build and start WebDriverAgent
+cd WebDriverAgent
+xcodebuild test-without-building -project WebDriverAgent.xcodeproj \
+  -scheme WebDriverAgentRunner -destination 'id=00008101-000429600AD8001E' \
+  -allowProvisioningUpdates
+```
+
+#### 2. Find iPhone IP Address
+```bash
+# Method 1: iPhone Settings
+# Settings → Wi-Fi → (i) next to network → IP Address
+
+# Method 2: Automated discovery
+cd mcp/ios
+python3 find_iphone_ip.py
+
+# Method 3: Quick network scan
+./quick_find_ip.sh
+
+# Method 4: Manual network scan
+arp -a | grep "192.168.1"
+nmap -sn 192.168.1.0/24
+```
+
+#### 3. Connect via WiFi
+```bash
+# Once WebDriverAgent is running and IP is known:
+cd mcp/ios
+
+# Test WebDriverAgent accessibility
+curl http://YOUR_IPHONE_IP:8100/status
+
+# Start iOS MCP server via WiFi
+uv run main.py --device YOUR_IPHONE_IP:8100
+
+# Example with actual IP:
+uv run main.py --device 192.168.1.2:8100
+```
+
+### WiFi Connection Commands Reference
+
+#### Using tidevice via WiFi
+```bash
+# Note: Use the correct bundle ID (com.tommy.WebDriverAgentRunner.xctrunner)
+uv run tidevice -u YOUR_IPHONE_IP wdaproxy -B com.tommy.WebDriverAgentRunner.xctrunner
+
+# Example:
+uv run tidevice -u 192.168.1.2 wdaproxy -B com.tommy.WebDriverAgentRunner.xctrunner
+```
+
+#### Direct iOS MCP Connection
+```bash
+# WiFi connection (recommended)
+uv run main.py --device 192.168.1.2:8100
+
+# USB connection (fallback)
+uv run main.py --usb
+
+# Auto-detect connection
+uv run main.py
+```
+
+### WiFi Troubleshooting
+
+#### Connection Issues
+```bash
+# 1. Verify iPhone is on same network
+ping YOUR_IPHONE_IP
+
+# 2. Check WebDriverAgent is running
+curl http://YOUR_IPHONE_IP:8100/status
+
+# 3. Check for connection errors
+uv run main.py --device YOUR_IPHONE_IP:8100 --verbose
+```
+
+#### Common WiFi Issues
+
+| Issue | Solution |
+|-------|----------|
+| **"Connection refused"** | WebDriverAgent not running → Start via USB first |
+| **"No route to host"** | Different WiFi networks → Connect to same network |
+| **"Device not found"** | Wrong IP address → Use `find_iphone_ip.py` |
+| **"Bundle ID not found"** | Use `com.tommy.WebDriverAgentRunner.xctrunner` |
+| **"Pairing failed"** | Dependencies missing → `uv sync` |
+
+#### Automated WiFi Setup
+```bash
+# Use automated WiFi setup script
+cd mcp/ios
+python3 setup_wifi_debugging.py
+
+# This script will:
+# 1. Check USB connection
+# 2. Enable WiFi debugging
+# 3. Find iPhone IP
+# 4. Test WiFi connection
+# 5. Start WebDriverAgent via WiFi
+```
 
 ## Prerequisites
 
@@ -102,9 +284,13 @@ open WebDriverAgent.xcodeproj
 uv run main.py --simulator
 ```
 
-#### For Physical Device (WiFi):
+#### For Physical Device (WiFi) - Recommended:
 ```bash
-uv run main.py --device 192.168.1.100:8100
+# Find iPhone IP first
+python3 find_iphone_ip.py
+
+# Connect via WiFi
+uv run main.py --device 192.168.1.2:8100
 ```
 
 #### For Physical Device (USB):
@@ -119,22 +305,67 @@ uv run main.py
 
 ### Starting WebDriverAgent
 
-#### Using tidevice (Recommended for USB):
+#### Using Xcode (Recommended for initial setup):
+```bash
+# In WebDriverAgent directory
+cd WebDriverAgent
+xcodebuild test-without-building -project WebDriverAgent.xcodeproj \
+           -scheme WebDriverAgentRunner \
+           -destination 'id=YOUR_DEVICE_UDID' \
+           -allowProvisioningUpdates
+
+# Example with actual device ID:
+xcodebuild test-without-building -project WebDriverAgent.xcodeproj \
+           -scheme WebDriverAgentRunner \
+           -destination 'id=UDID' \
+           -allowProvisioningUpdates
+```
+
+# 1. Connect iPhone via USB cable
+# 2. Unlock iPhone and tap "Trust This Computer"
+# 3. Check if device is detected:
+cd /Users/tommy-amarbank/Documents/startup/agent/mcp/ios
+uv run tidevice list
+
+
+# Once USB connected, enable WiFi debugging:
+uv run tidevice -u YOUR_DEVICE_UDID pair
+
+
+# Check iPhone Settings → Wi-Fi → (i) next to network → IP Address
+# OR use our network scanner:
+python3 find_iphone_ip.py
+
+
+# Correct syntax (note -u position):
+uv run tidevice -u 192.168.1.2 wdaproxy -B com.facebook.WebDriverAgentRunner.xctrunner
+
+cd /Users/tommy-amarbank/Documents/startup/agent/mcp/ios
+python3 setup_wifi_debugging.py
+
+uv run tidevice list
+
+cd /Users/tommy-amarbank/Documents/startup/agent/mcp/ios/WebDriverAgent && xcodebuild test-without-building -project WebDriverAgent.xcodeproj -scheme WebDriverAgentRunner -destination 'id=YOUR_DEVICE_UDID' -allowProvisioningUpdates
+
+curl http://192.168.1.2:8100/status
+
+#### Using tidevice (for USB connections):
 ```bash
 # Install tidevice
 pip install tidevice
 
-# Start WebDriverAgent
-tidevice wdaproxy -B com.facebook.WebDriverAgentRunner.xctrunner
+# Start WebDriverAgent via USB
+tidevice wdaproxy -B com.tommy.WebDriverAgentRunner.xctrunner
 ```
 
-#### Using Xcode:
+#### Using tidevice (for WiFi connections):
 ```bash
-# In WebDriverAgent directory
-xcodebuild -project WebDriverAgent.xcodeproj \
-           -scheme WebDriverAgentRunner \
-           -destination 'platform=iOS,name=YOUR_DEVICE_NAME' \
-           test
+# Note: WebDriverAgent must be running first (via Xcode)
+# Then use tidevice to proxy the connection
+tidevice -u YOUR_IPHONE_IP wdaproxy -B com.tommy.WebDriverAgentRunner.xctrunner
+
+# Example:
+tidevice -u 192.168.1.2 wdaproxy -B com.tommy.WebDriverAgentRunner.xctrunner
 ```
 
 ## MCP Server Configuration
@@ -149,7 +380,7 @@ Add to your MCP client configuration (e.g., Claude Desktop):
       "command": "bash",
       "args": [
         "-c",
-        "cd /path/to/agent/mcp/ios && source .venv/bin/activate && uv run main.py --simulator"
+        "cd /path/to/agent/mcp/ios && source .venv/bin/activate && uv run main.py --device 192.168.1.2:8100"
       ],
       "alwaysAllow": [
         "State-Tool",
@@ -281,6 +512,74 @@ Element-Tap-Tool --selector className --value "XCUIElementTypeTextField"
 
 ## Troubleshooting
 
+### 🔴 Connection Errors (FIXED!)
+
+**Before our improvements, you might have seen:**
+```
+ConnectionRefusedError: [Errno 61] Connection refused
+```
+
+**Now you'll see helpful guidance instead:**
+```
+🛠️  iOS MCP SERVER SETUP REQUIRED
+================================================================================
+📱 iOS SIMULATOR SETUP:
+
+1️⃣  Install Appium (Recommended):
+   npm install -g appium
+   appium driver install xcuitest
+   appium --port 4723
+```
+
+The server now:
+- ✅ **Detects missing WebDriverAgent automatically**
+- ✅ **Provides step-by-step setup instructions** 
+- ✅ **Attempts auto-setup when possible**
+- ✅ **Retries connection with clear feedback**
+- ✅ **Gracefully handles all error cases**
+
+### WiFi Connection Issues
+
+#### 1. **"Connection Refused" via WiFi**
+```bash
+# Check if WebDriverAgent is running
+curl http://YOUR_IPHONE_IP:8100/status
+
+# If not running, start via USB first:
+cd WebDriverAgent
+xcodebuild test-without-building -project WebDriverAgent.xcodeproj \
+  -scheme WebDriverAgentRunner -destination 'id=YOUR_DEVICE_UDID' \
+  -allowProvisioningUpdates
+```
+
+#### 2. **"Device Not Found" via WiFi**
+```bash
+# Find correct iPhone IP
+python3 find_iphone_ip.py
+
+# Or check iPhone manually:
+# Settings → Wi-Fi → (i) → IP Address
+
+# Test connectivity
+ping YOUR_IPHONE_IP
+```
+
+#### 3. **"No app matches" Error**
+```bash
+# Use correct bundle ID:
+com.tommy.WebDriverAgentRunner.xctrunner
+# NOT: com.facebook.WebDriverAgentRunner.xctrunner
+
+# Check installed apps:
+uv run tidevice applist
+```
+
+#### 4. **"pkg_resources" Error**
+```bash
+# Fixed by adding setuptools and pyOpenSSL dependencies
+uv sync
+```
+
 ### Common Issues
 
 1. **WebDriverAgent Connection Failed**:
@@ -306,12 +605,21 @@ Element-Tap-Tool --selector className --value "XCUIElementTypeTextField"
 ### WebDriverAgent Issues
 
 ```bash
-# Reset WebDriverAgent
+# Reset WebDriverAgent (USB)
 pkill -f WebDriverAgent
-tidevice wdaproxy -B com.facebook.WebDriverAgentRunner.xctrunner
+tidevice wdaproxy -B com.tommy.WebDriverAgentRunner.xctrunner
 
-# Check WebDriverAgent status
-curl http://localhost:8100/status
+# Reset WebDriverAgent (WiFi)
+pkill -f WebDriverAgent
+# Restart via Xcode method:
+cd WebDriverAgent
+xcodebuild test-without-building -project WebDriverAgent.xcodeproj \
+  -scheme WebDriverAgentRunner -destination 'id=YOUR_DEVICE_UDID' \
+  -allowProvisioningUpdates
+
+# Check WebDriverAgent status (works for both USB/WiFi)
+curl http://localhost:8100/status  # USB via tidevice proxy
+curl http://YOUR_IPHONE_IP:8100/status  # Direct WiFi
 
 # View WebDriverAgent logs
 tidevice syslog | grep WebDriverAgent

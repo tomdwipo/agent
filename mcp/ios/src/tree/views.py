@@ -75,7 +75,7 @@ class TreeView:
         return result
     
     def get_summary(self) -> str:
-        """Get summary of the tree state."""
+        """Get summary of the a tree state."""
         return (
             f"iOS UI Tree Summary:\n"
             f"Window Size: {self.tree_state.window_size}\n"

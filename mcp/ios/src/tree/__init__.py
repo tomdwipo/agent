@@ -74,15 +74,39 @@ class TreeState:
         result += f"Total Elements: {len(self.elements)}\n"
         result += f"Interactive Elements: {len(self.interactive_elements)}\n\n"
         
+        # Show all elements with text content
+        result += "All Elements with Text:\n"
+        text_elements = []
+        for i, element in enumerate(self.elements):
+            if element.name or element.label:
+                bounds = element.bounds
+                text_info = f"{i+1}. {element.className}"
+                if element.name:
+                    text_info += f" name='{element.name}'"
+                if element.label and element.label != element.name:
+                    text_info += f" label='{element.label}'"
+                text_info += f" at ({bounds[0]}, {bounds[1]}, {bounds[2]}, {bounds[3]})"
+                if element.interactive:
+                    text_info += " (interactive)"
+                text_elements.append(text_info)
+        
+        if text_elements:
+            result += "\n".join(text_elements) + "\n\n"
+        else:
+            result += "No elements with text found.\n\n"
+        
         result += "Interactive Elements:\n"
-        for i, element in enumerate(self.interactive_elements):
-            bounds = element.bounds
-            result += f"{i+1}. {element.className}"
-            if element.name:
-                result += f" '{element.name}'"
-            if element.label:
-                result += f" [{element.label}]"
-            result += f" at ({bounds[0]}, {bounds[1]}, {bounds[2]}, {bounds[3]})\n"
+        if self.interactive_elements:
+            for i, element in enumerate(self.interactive_elements):
+                bounds = element.bounds
+                result += f"{i+1}. {element.className}"
+                if element.name:
+                    result += f" '{element.name}'"
+                if element.label:
+                    result += f" [{element.label}]"
+                result += f" at ({bounds[0]}, {bounds[1]}, {bounds[2]}, {bounds[3]})\n"
+        else:
+            result += "No interactive elements found.\n"
         
         return result
     
