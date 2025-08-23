@@ -1,12 +1,11 @@
 #!/bin/bash
+# iOS MCP Setup and Verification Script
+# This script helps validate and setup WebDriverAgent for iOS automation
 
-# iOS MCP Server Setup Script
-# Automates the installation and configuration of the iOS MCP server
+set -e  # Exit on any error
 
-set -e
-
-echo "🍎 iOS MCP Server Setup"
-echo "======================="
+echo "🚀 iOS MCP Setup and Verification Script"
+echo "========================================"
 
 # Colors for output
 RED='\033[0;31m'
@@ -16,215 +15,233 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Function to print colored output
-print_step() {
-    echo -e "${BLUE}[STEP]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+print_status() {
+    echo -e "${GREEN}✅${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}⚠️${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}❌${NC} $1"
 }
 
-# Check if running on macOS
+print_info() {
+    echo -e "${BLUE}ℹ️${NC} $1"
+}
+
+# Check if we're on macOS
 if [[ "$OSTYPE" != "darwin"* ]]; then
-    print_error "iOS MCP server requires macOS. Current OS: $OSTYPE"
+    print_error "This script requires macOS for iOS device automation"
     exit 1
 fi
 
-print_success "Running on macOS ✓"
+print_status "Running on macOS"
 
-# Check for required tools
-print_step "Checking prerequisites..."
+# Check if Xcode is installed
+if ! command -v xcodebuild &> /dev/null; then
+    print_error "Xcode is not installed or command line tools are missing"
+    print_info "Please install Xcode from the App Store and run:"
+    print_info "xcode-select --install"
+    exit 1
+fi
 
-# Check for Python
+print_status "Xcode is installed"
+
+# Check if Python is available
 if ! command -v python3 &> /dev/null; then
-    print_error "Python 3 is required but not installed"
+    print_error "Python 3 is not installed"
     exit 1
 fi
 
-python_version=$(python3 --version | cut -d' ' -f2)
-print_success "Python $python_version found ✓"
+PYTHON_VERSION=$(python3 --version | cut -d' ' -f2)
+print_status "Python $PYTHON_VERSION is available"
 
-# Check for uv
+# Check if uv is installed
 if ! command -v uv &> /dev/null; then
-    print_warning "uv package manager not found, installing..."
+    print_warning "uv package manager not found. Installing..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
     export PATH="$HOME/.local/bin:$PATH"
     
-    if command -v uv &> /dev/null; then
-        print_success "uv installed successfully ✓"
-    else
-        print_error "Failed to install uv"
+    if ! command -v uv &> /dev/null; then
+        print_error "Failed to install uv. Please install manually:"
+        print_info "curl -LsSf https://astral.sh/uv/install.sh | sh"
         exit 1
     fi
-else
-    print_success "uv package manager found ✓"
 fi
 
-# Check for Xcode
-if ! command -v xcodebuild &> /dev/null; then
-    print_warning "Xcode is required for iOS automation"
-    print_warning "Please install Xcode from the App Store"
-    read -p "Continue anyway? (y/n): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
-else
-    print_success "Xcode found ✓"
-fi
+print_status "uv package manager is available"
 
-# Install Python dependencies
-print_step "Installing Python dependencies..."
+# Install project dependencies
+print_info "Installing project dependencies..."
 uv sync
 
-if [ $? -eq 0 ]; then
-    print_success "Dependencies installed ✓"
-else
-    print_error "Failed to install dependencies"
-    exit 1
-fi
+print_status "Dependencies installed"
 
-# Check for iOS devices/simulators
-print_step "Checking for iOS devices and simulators..."
-
-# Check for simulators
-if command -v xcrun &> /dev/null; then
-    simulators=$(xcrun simctl list devices | grep "iPhone" | grep "Booted\|Shutdown" | wc -l)
-    if [ $simulators -gt 0 ]; then
-        print_success "Found $simulators iOS simulators ✓"
-    else
-        print_warning "No iOS simulators found"
-    fi
-fi
+# Check for iOS devices
+print_info "Checking for connected iOS devices..."
 
 # Check for physical devices
 if command -v idevice_id &> /dev/null; then
-    devices=$(idevice_id -l | wc -l)
-    if [ $devices -gt 0 ]; then
-        print_success "Found $devices connected iOS devices ✓"
+    DEVICES=$(idevice_id -l)
+    if [ -n "$DEVICES" ]; then
+        print_status "Physical iOS devices found:"
+        echo "$DEVICES" | while read -r device; do
+            echo "  📱 $device"
+        done
     else
         print_warning "No physical iOS devices found"
     fi
 else
-    print_warning "libimobiledevice not installed (optional for physical devices)"
-    print_warning "Install with: brew install libimobiledevice"
-fi
-
-# Setup WebDriverAgent (optional)
-print_step "WebDriverAgent setup..."
-
-read -p "Do you want to set up WebDriverAgent automatically? (y/n): " -n 1 -r
-echo
-
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    print_step "Setting up WebDriverAgent via Appium..."
-    
-    # Check for Node.js
-    if ! command -v node &> /dev/null; then
-        print_warning "Node.js is required for Appium"
-        print_warning "Install Node.js from https://nodejs.org"
-        read -p "Continue without Appium setup? (y/n): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            exit 1
+    # Try with tidevice
+    if pip3 show tidevice &> /dev/null || uv run python -c "import tidevice" &> /dev/null; then
+        DEVICES=$(uv run python -c "import tidevice; print('\n'.join(tidevice.Device.list()))" 2>/dev/null || echo "")
+        if [ -n "$DEVICES" ]; then
+            print_status "Physical iOS devices found (via tidevice):"
+            echo "$DEVICES" | while read -r device; do
+                echo "  📱 $device"
+            done
+        else
+            print_warning "No physical iOS devices found"
         fi
     else
-        # Install Appium
-        if ! command -v appium &> /dev/null; then
-            print_step "Installing Appium..."
-            npm install -g appium
-            npm install -g @appium/doctor
-        fi
-        
-        # Install XCUITest driver
-        print_step "Installing XCUITest driver..."
-        appium driver install xcuitest
-        
-        # Run Appium doctor
-        print_step "Running Appium doctor check..."
-        appium doctor --ios
-        
-        print_success "Appium setup completed ✓"
+        print_warning "Neither libimobiledevice nor tidevice found for device detection"
     fi
+fi
+
+# Check for iOS Simulators
+print_info "Checking for iOS Simulators..."
+SIMULATORS=$(xcrun simctl list devices | grep -E "iPhone|iPad" | grep "Booted" || echo "")
+if [ -n "$SIMULATORS" ]; then
+    print_status "Running iOS Simulators found:"
+    echo "$SIMULATORS" | while read -r sim; do
+        echo "  📲 $sim"
+    done
 else
-    print_warning "Skipping WebDriverAgent automatic setup"
-    echo "Please follow manual setup instructions in README.md"
+    print_warning "No running iOS Simulators found"
+    print_info "You can start a simulator with:"
+    print_info "open -a Simulator"
 fi
 
-# Test installation
-print_step "Testing iOS MCP server..."
-
-# Test basic import
-if uv run python -c "from src.ios import IOSDevice; print('Import successful')" 2>/dev/null; then
-    print_success "iOS MCP server modules loaded successfully ✓"
+# Check if tidevice is installed
+print_info "Checking tidevice installation..."
+if uv run python -c "import tidevice" &> /dev/null; then
+    print_status "tidevice is installed"
 else
-    print_error "Failed to load iOS MCP server modules"
-    exit 1
+    print_warning "tidevice not found. Installing..."
+    uv add tidevice
+    print_status "tidevice installed"
 fi
 
-# Create example environment file
-if [ ! -f ".env" ]; then
-    print_step "Creating example .env file..."
-    cat > .env << EOF
-# iOS MCP Server Configuration
-
-# Device connection settings
-DEFAULT_DEVICE_TYPE=simulator
-DEFAULT_PORT=8100
-CONNECTION_TIMEOUT=30
-
-# WebDriverAgent settings
-WDA_BUNDLE_ID=com.facebook.WebDriverAgentRunner.xctrunner
-
-# Debug settings
-DEBUG_MODE=false
-VERBOSE_LOGGING=false
-
-# Element detection settings
-ELEMENT_WAIT_TIMEOUT=10.0
-SCREENSHOT_SCALE=0.7
-EOF
-    print_success "Created .env configuration file ✓"
-fi
-
-# Final instructions
-echo
-echo "🎉 iOS MCP Server Setup Complete!"
-echo "================================="
-echo
-echo "Next steps:"
-echo "1. Start an iOS Simulator or connect a physical device"
-echo "2. Launch WebDriverAgent (see README.md for instructions)"
-echo "3. Test the server:"
-echo "   ${BLUE}uv run main.py --simulator${NC}"
-echo
-echo "For MCP client integration, add this to your configuration:"
-echo "${YELLOW}"
-cat << 'EOF'
-{
-  "mcpServers": {
-    "ios-mcp": {
-      "type": "stdio",
-      "command": "bash",
-      "args": [
-        "-c", 
-        "cd /path/to/agent/mcp/ios && uv run main.py --simulator"
-      ]
-    }
-  }
+# Function to check WebDriverAgent
+check_wda() {
+    local port=${1:-8100}
+    local timeout=3
+    
+    print_info "Checking WebDriverAgent on port $port..."
+    
+    if curl -s --connect-timeout $timeout "http://localhost:$port/status" > /dev/null 2>&1; then
+        print_status "WebDriverAgent is running on port $port"
+        return 0
+    else
+        return 1
+    fi
 }
-EOF
-echo "${NC}"
-echo
-echo "📖 For detailed setup and usage instructions, see README.md"
-echo "🐛 For troubleshooting, check the Common Issues section in README.md"
 
-print_success "Setup completed successfully! 🚀"
+# Check if WebDriverAgent is running
+if ! check_wda 8100; then
+    print_warning "WebDriverAgent is not running on default port 8100"
+    
+    # Check common alternative ports
+    for port in 4723 8200 9100; do
+        if check_wda $port; then
+            print_info "Found WebDriverAgent on port $port"
+            break
+        fi
+    done
+    
+    print_info "To start WebDriverAgent:"
+    echo ""
+    echo "For physical devices:"
+    echo "  uv run python -c \"import tidevice; tidevice.Device().wdaproxy()\""
+    echo ""
+    echo "For simulators:"
+    echo "  1. Install Appium: npm install -g appium"
+    echo "  2. Install driver: appium driver install xcuitest"
+    echo "  3. Start server: appium --port 4723"
+    echo ""
+    echo "Alternative manual setup:"
+    echo "  1. git clone https://github.com/appium/WebDriverAgent.git"
+    echo "  2. cd WebDriverAgent"
+    echo "  3. Open WebDriverAgent.xcodeproj in Xcode"
+    echo "  4. Set development team in project settings"
+    echo "  5. Build and run WebDriverAgentRunner target"
+fi
+
+# Test iOS MCP connection
+print_info "Testing iOS MCP connection..."
+
+# Try to initialize the iOS device
+TEST_OUTPUT=$(uv run python -c "
+try:
+    import sys
+    sys.path.append('src')
+    from ios import IOSDevice
+    
+    # Try different connection methods
+    methods = [
+        ('simulator', {'simulator': True}),
+        ('usb', {'usb': True}),
+        ('localhost', {}),
+    ]
+    
+    for method_name, kwargs in methods:
+        try:
+            print(f'Trying {method_name} connection...')
+            device = IOSDevice(auto_setup=False, **kwargs)
+            info = device.get_device_info()
+            if info.get('connected'):
+                print(f'✅ SUCCESS: Connected via {method_name}')
+                print(f'Device info: {info}')
+                break
+        except Exception as e:
+            print(f'❌ {method_name} failed: {e}')
+    else:
+        print('❌ All connection methods failed')
+        
+except Exception as e:
+    print(f'❌ Import or initialization error: {e}')
+" 2>&1)
+
+echo "$TEST_OUTPUT"
+
+if echo "$TEST_OUTPUT" | grep -q "SUCCESS"; then
+    print_status "iOS MCP connection test passed!"
+else
+    print_warning "iOS MCP connection test failed"
+    print_info "This may be normal if WebDriverAgent is not running"
+fi
+
+# Final recommendations
+echo ""
+echo "📋 Setup Verification Complete"
+echo "=============================="
+echo ""
+
+print_info "To start the iOS MCP server:"
+echo "  # For iOS Simulator:"
+echo "  uv run main.py --simulator"
+echo ""
+echo "  # For physical device via USB:"
+echo "  uv run main.py --usb"
+echo ""
+echo "  # For physical device via network:"
+echo "  uv run main.py --device 192.168.1.100:8100"
+echo ""
+
+print_info "For more help, see README.md or run:"
+echo "  uv run main.py --help"
+
+echo ""
+print_status "Setup verification complete! 🎉"

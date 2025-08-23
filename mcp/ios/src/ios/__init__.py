@@ -8,7 +8,10 @@ using WebDriverAgent and tidevice for iOS automation.
 import time
 import wda
 import tidevice
-from typing import Optional, Union, Dict, Any, Tuple
+import requests
+import subprocess
+import socket
+from typing import Optional, Union, Dict, Any, Tuple, List
 from io import BytesIO
 from PIL import Image
 from src.ios.views import IOSState
@@ -23,7 +26,8 @@ class IOSDevice:
         device: Optional[str] = None,
         simulator: bool = False,
         usb: bool = False,
-        port: int = 8100
+        port: int = 8100,
+        auto_setup: bool = True
     ):
         """
         Initialize iOS device connection.
@@ -33,47 +37,262 @@ class IOSDevice:
             simulator: Whether to use iOS Simulator
             usb: Whether to connect via USB using tidevice
             port: WebDriverAgent port (default: 8100)
+            auto_setup: Whether to automatically attempt WebDriverAgent setup
         """
         self.device = device
         self.simulator = simulator
         self.usb = usb
         self.port = port
+        self.auto_setup = auto_setup
         self.client = None
         self.session = None
+        self.connection_url = None
         
         self._connect()
     
     def _connect(self):
-        """Establish connection to iOS device."""
-        try:
-            if self.usb:
-                # Use USB connection via tidevice
-                if self.device:
-                    self.client = wda.USBClient(self.device, port=self.port)
-                else:
-                    # Auto-detect first connected device
-                    self.client = wda.USBClient(port=self.port)
-            else:
-                # Use network connection
-                if self.device:
-                    url = f"http://{self.device}"
-                    if ':' not in self.device:
-                        url = f"http://{self.device}:{self.port}"
-                elif self.simulator:
-                    url = f"http://localhost:{self.port}"
-                else:
-                    url = f"http://localhost:{self.port}"
+        """Establish connection to iOS device with retry logic and setup validation."""
+        connection_attempts = 3
+        
+        for attempt in range(connection_attempts):
+            try:
+                # Build connection URL
+                self.connection_url = self._build_connection_url()
                 
-                self.client = wda.Client(url)
+                # Check if WebDriverAgent is running before attempting connection
+                if not self._check_wda_availability():
+                    if self.auto_setup and attempt == 0:
+                        print("WebDriverAgent not detected. Attempting to start...")
+                        if self._attempt_wda_setup():
+                            time.sleep(3)  # Give WDA time to start
+                        else:
+                            self._print_setup_instructions()
+                            raise ConnectionError("WebDriverAgent is not running. Please follow setup instructions above.")
+                    else:
+                        self._print_setup_instructions()
+                        raise ConnectionError("WebDriverAgent is not running. Please follow setup instructions above.")
+                
+                # Create client connection
+                if self.usb:
+                    if self.device:
+                        self.client = wda.USBClient(self.device, port=self.port)
+                    else:
+                        # Auto-detect first connected device
+                        self.client = wda.USBClient(port=self.port)
+                else:
+                    self.client = wda.Client(self.connection_url)
+                
+                # Test connection with timeout
+                status = self.client.status()
+                print(f"✅ Connected to iOS device: {status.get('message', 'Ready')}")
+                
+                # Print device info
+                try:
+                    device_info = status.get('ios', {})
+                    if device_info:
+                        print(f"📱 Device: {device_info.get('name', 'Unknown')} - iOS {device_info.get('version', 'Unknown')}")
+                except:
+                    pass
+                
+                return  # Success
+                
+            except Exception as e:
+                if attempt < connection_attempts - 1:
+                    print(f"⚠️  Connection attempt {attempt + 1} failed: {str(e)}")
+                    print(f"🔄 Retrying in 2 seconds... ({connection_attempts - attempt - 1} attempts remaining)")
+                    time.sleep(2)
+                else:
+                    self._print_setup_instructions()
+                    raise ConnectionError(
+                        f"❌ Failed to connect to iOS device after {connection_attempts} attempts. "
+                        f"Last error: {e}\n\n"
+                        f"Please ensure WebDriverAgent is properly set up and running."
+                    )
+    
+    def _build_connection_url(self) -> str:
+        """Build the connection URL based on configuration."""
+        if self.usb:
+            return "USB"  # Special case for USB connections
+        
+        if self.device:
+            url = f"http://{self.device}"
+            if ':' not in self.device:
+                url = f"http://{self.device}:{self.port}"
+        elif self.simulator:
+            url = f"http://localhost:{self.port}"
+        else:
+            url = f"http://localhost:{self.port}"
+        
+        return url
+    
+    def _check_wda_availability(self) -> bool:
+        """Check if WebDriverAgent is available and responding."""
+        if self.usb:
+            # For USB connections, we need to check if tidevice can connect
+            try:
+                devices = tidevice.Device.list()
+                if not devices and not self.device:
+                    print("⚠️  No iOS devices found via USB")
+                    return False
+                return True
+            except Exception as e:
+                print(f"⚠️  USB device check failed: {e}")
+                return False
+        else:
+            # For network connections, check if the port is accessible
+            try:
+                if self.connection_url == "USB":
+                    return True
+                    
+                # Parse URL to get host and port
+                url_parts = self.connection_url.replace('http://', '').split(':')
+                host = url_parts[0]
+                port = int(url_parts[1]) if len(url_parts) > 1 else self.port
+                
+                # Try to connect to the port
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(3)
+                result = sock.connect_ex((host, port))
+                sock.close()
+                
+                if result == 0:
+                    # Port is open, check if it's WebDriverAgent
+                    try:
+                        response = requests.get(f"{self.connection_url}/status", timeout=5)
+                        return response.status_code == 200
+                    except:
+                        return False
+                else:
+                    return False
+                    
+            except Exception as e:
+                print(f"⚠️  Network connectivity check failed: {e}")
+                return False
+    
+    def _attempt_wda_setup(self) -> bool:
+        """Attempt to automatically start WebDriverAgent."""
+        try:
+            print("🚀 Attempting to start WebDriverAgent...")
             
-            # Test connection
-            status = self.client.status()
-            print(f"Connected to iOS device: {status}")
+            if self.usb or not self.simulator:
+                # Try to start WebDriverAgent using tidevice
+                devices = tidevice.Device.list()
+                if devices:
+                    device_udid = self.device if self.device else devices[0]
+                    print(f"📱 Starting WebDriverAgent on device: {device_udid}")
+                    
+                    # Start WebDriverAgent in background
+                    cmd = ['tidevice', 'wdaproxy', '-B', 'com.facebook.WebDriverAgentRunner.xctrunner', '--port', str(self.port)]
+                    if self.device:
+                        cmd.extend(['--udid', self.device])
+                    
+                    process = subprocess.Popen(
+                        cmd,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        start_new_session=True
+                    )
+                    
+                    print("⏳ Waiting for WebDriverAgent to start...")
+                    time.sleep(5)  # Give it time to start
+                    
+                    # Check if it's now available
+                    if self._check_wda_availability():
+                        print("✅ WebDriverAgent started successfully!")
+                        return True
+                    else:
+                        print("⚠️  WebDriverAgent may still be starting...")
+                        return False
+                else:
+                    print("⚠️  No iOS devices found for WebDriverAgent setup")
+                    return False
             
+            elif self.simulator:
+                # For simulator, suggest Appium or manual setup
+                print("📋 For iOS Simulator, please use Appium or manual WebDriverAgent setup")
+                return False
+                
         except Exception as e:
-            raise ConnectionError(f"Failed to connect to iOS device: {e}")
+            print(f"⚠️  Auto-setup failed: {e}")
+            return False
+            
+        return False
+    
+    def _print_setup_instructions(self):
+        """Print detailed setup instructions for WebDriverAgent."""
+        print("\n" + "="*80)
+        print("🛠️  iOS MCP SERVER SETUP REQUIRED")
+        print("="*80)
+        
+        if self.simulator:
+            print("📱 iOS SIMULATOR SETUP:")
+            print("\n1️⃣  Install Appium (Recommended):")
+            print("   npm install -g appium")
+            print("   appium driver install xcuitest")
+            print("   appium --port 4723")
+            print("\n2️⃣  Or use manual WebDriverAgent:")
+            print("   git clone https://github.com/appium/WebDriverAgent.git")
+            print("   cd WebDriverAgent")
+            print("   xcodebuild -project WebDriverAgent.xcodeproj \\")
+            print("             -scheme WebDriverAgentRunner \\")
+            print("             -destination 'platform=iOS Simulator,name=iPhone 14' test")
+            
+        else:
+            print("📱 PHYSICAL DEVICE SETUP:")
+            print("\n1️⃣  Install tidevice:")
+            print("   pip install tidevice")
+            print("\n2️⃣  Start WebDriverAgent:")
+            if self.device:
+                print(f"   tidevice wdaproxy -B com.facebook.WebDriverAgentRunner.xctrunner --udid {self.device} --port {self.port}")
+            else:
+                print(f"   tidevice wdaproxy -B com.facebook.WebDriverAgentRunner.xctrunner --port {self.port}")
+            print("\n3️⃣  Device Requirements:")
+            print("   • iOS 9.3+ device")
+            print("   • Developer Mode enabled (iOS 16+)")
+            print("   • Device trusted on this Mac")
+            print("   • WebDriverAgentRunner app installed")
+        
+        print("\n🔍 VERIFICATION:")
+        print(f"   curl {self.connection_url}/status")
+        print("   (Should return WebDriverAgent status)")
+        
+        print("\n📚 MORE HELP:")
+        print("   • See README.md for detailed setup instructions")
+        print("   • Check Xcode project signing for WebDriverAgent")
+        print("   • Ensure device is unlocked and trusted")
+        
+        print("="*80 + "\n")
     
     def get_device(self):
+        """Get the underlying device client."""
+        if not self.client:
+            raise ConnectionError("Device not connected. Please check WebDriverAgent setup.")
+        return self.client
+    
+    def get_device_info(self) -> Dict[str, Any]:
+        """Get detailed device information."""
+        try:
+            if not self.client:
+                return {"error": "Not connected"}
+                
+            status = self.client.status()
+            info = {
+                "connected": True,
+                "connection_url": self.connection_url,
+                "connection_type": "USB" if self.usb else "Network",
+                "simulator": self.simulator,
+                "port": self.port,
+                "wda_status": status
+            }
+            
+            # Add device-specific info if available
+            if 'ios' in status:
+                info.update(status['ios'])
+                
+            return info
+            
+        except Exception as e:
+            return {"error": f"Failed to get device info: {e}"}
         """Get the underlying device client."""
         return self.client
     
@@ -417,18 +636,3 @@ class IOSDevice:
             
         except Exception as e:
             return False
-    
-    def get_device_info(self) -> Dict[str, Any]:
-        """Get device information."""
-        try:
-            session = self.get_session()
-            return {
-                'window_size': session.window_size(),
-                'orientation': session.orientation,
-                'battery': session.battery_info(),
-                'device_info': session.device_info(),
-                'locked': session.locked(),
-                'scale': session.scale
-            }
-        except Exception as e:
-            return {'error': str(e)}

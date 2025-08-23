@@ -13,6 +13,8 @@ from argparse import ArgumentParser
 from src.ios import IOSDevice
 from textwrap import dedent
 import asyncio
+import sys
+import traceback
 
 
 parser = ArgumentParser()
@@ -26,6 +28,8 @@ instructions = dedent('''
 iOS MCP server provides tools to interact directly with iOS devices and simulators,
 enabling automated testing and device control similar to Android MCP.
 Supports both physical devices and iOS Simulator through WebDriverAgent.
+
+IMPORTANT: Requires WebDriverAgent to be running on the target device.
 ''')
 
 @asynccontextmanager
@@ -36,34 +40,99 @@ async def lifespan(app: FastMCP):
 
 mcp = FastMCP(name="iOS-MCP", instructions=instructions)
 
-# Initialize iOS device
-ios_device = IOSDevice(
-    device=args.device,
-    simulator=args.simulator,
-    usb=args.usb,
-    port=args.port
-)
+# Global iOS device instance
+ios_device = None
+
+def initialize_device():
+    """Initialize iOS device with proper error handling."""
+    global ios_device
+    
+    try:
+        print("🚀 Initializing iOS MCP Server...")
+        print(f"🔌 Connection mode: {'USB' if args.usb else 'Network'}")
+        if args.device:
+            print(f"🎯 Target device: {args.device}")
+        elif args.simulator:
+            print("📱 Target: iOS Simulator")
+        else:
+            print("📱 Target: Auto-detect device")
+        
+        ios_device = IOSDevice(
+            device=args.device,
+            simulator=args.simulator,
+            usb=args.usb,
+            port=args.port,
+            auto_setup=True
+        )
+        
+        # Print device info
+        device_info = ios_device.get_device_info()
+        if device_info.get('connected'):
+            print("✅ iOS MCP Server ready!")
+            return True
+        else:
+            print("❌ Device initialization failed")
+            return False
+            
+    except ConnectionError as e:
+        print(f"❌ Connection Error: {e}")
+        print("\n💡 Quick fixes to try:")
+        print("1. Ensure your iOS device/simulator is connected")
+        print("2. Check that WebDriverAgent is installed and running")
+        print("3. Verify device is trusted and unlocked")
+        print("4. See README.md for detailed setup instructions")
+        return False
+        
+    except Exception as e:
+        print(f"❌ Unexpected error during initialization: {e}")
+        print("\nFull traceback:")
+        traceback.print_exc()
+        return False
+
+def safe_device_operation(operation_name: str, operation_func, *args, **kwargs):
+    """Safely execute device operations with error handling."""
+    try:
+        if not ios_device:
+            return f"❌ Device not initialized. Please restart the server."
+        
+        return operation_func(*args, **kwargs)
+        
+    except ConnectionError as e:
+        return f"❌ Connection lost during {operation_name}: {e}. Please check device connection."
+    except Exception as e:
+        return f"❌ Error during {operation_name}: {e}"
 
 @mcp.tool(name='Click-Tool', description='Tap on specific coordinates')
 def click_tool(x: int, y: int):
     """Tap on specific coordinates on the iOS device screen."""
-    ios_device.tap(x, y)
-    return f'Tapped on ({x},{y})'
+    def perform_tap():
+        try:
+            ios_device.tap(x, y)
+            return f'✅ Successfully tapped on coordinates ({x}, {y})'
+        except Exception as e:
+            return f'❌ Failed to tap on coordinates ({x}, {y}): {str(e)}'
+    
+    return safe_device_operation("tap", perform_tap)
 
 @mcp.tool('State-Tool', description='Get the state of the iOS device. Optionally includes visual screenshot when use_vision=True.')
 def state_tool(use_vision: bool = False):
     """Get the current state of the iOS device with optional screenshot."""
-    device_state = ios_device.get_state(use_vision=use_vision)
-    result = [device_state.tree_state.to_string()]
-    if use_vision and device_state.screenshot:
-        result.append(Image(data=device_state.screenshot, format='PNG'))
-    return result
+    def get_state():
+        device_state = ios_device.get_state(use_vision=use_vision)
+        result = [device_state.tree_state.to_string()]
+        if use_vision and device_state.screenshot:
+            result.append(Image(data=device_state.screenshot, format='PNG'))
+        return result
+    
+    return safe_device_operation("get_state", get_state)
 
 @mcp.tool(name='Long-Press-Tool', description='Long press on specific coordinates')
 def long_press_tool(x: int, y: int, duration: float = 1.0):
     """Long press on specific coordinates for given duration."""
-    ios_device.long_press(x, y, duration=duration)
-    return f'Long pressed on ({x},{y}) for {duration}s'
+    return safe_device_operation(
+        "long_press",
+        lambda: (ios_device.long_press(x, y, duration=duration), f'Long pressed on ({x},{y}) for {duration}s')[1]
+    )
 
 @mcp.tool(name='Swipe-Tool', description='Swipe between coordinates')
 def swipe_tool(x1: int, y1: int, x2: int, y2: int, duration: float = 0.5):
@@ -182,4 +251,10 @@ def element_wait_tool(selector: str, value: str, timeout: float = 10.0):
     return f'Element {"found" if result else "not found"} within {timeout}s'
 
 if __name__ == '__main__':
+    # Initialize device before starting server
+    if not initialize_device():
+        print("\n❌ Failed to initialize iOS device. Exiting...")
+        sys.exit(1)
+    
+    print("\n🎯 Starting MCP server...")
     mcp.run()
