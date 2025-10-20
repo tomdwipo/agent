@@ -6,11 +6,12 @@ from textwrap import dedent
 import asyncio
 
 parser = ArgumentParser()
+parser.add_argument('--device', type=str, help='Specific device ID to connect to (e.g., R9CW400ESDL)')
 parser.add_argument('--emulator',action='store_true',help='Use the emulator')
 args = parser.parse_args()
 
 instructions=dedent('''
-Android MCP server provides tools to interact directly with the Android device, 
+Android MCP server provides tools to interact directly with the Android device,
 thus enabling to operate the mobile device like an actual USER.''')
 
 @asynccontextmanager
@@ -21,7 +22,15 @@ async def lifespan(app: FastMCP):
 
 mcp=FastMCP(name="Android-MCP",instructions=instructions)
 
-mobile=Mobile(device=None if not args.emulator else 'emulator-5554')
+# Determine which device to connect to
+if args.emulator:
+    device_id = 'emulator-5554'
+elif args.device:
+    device_id = args.device
+else:
+    device_id = None  # Connect to first available device
+
+mobile=Mobile(device=device_id)
 device=mobile.get_device()
 
 @mcp.tool(name='Click-Tool',description='Click on a specific cordinate')
